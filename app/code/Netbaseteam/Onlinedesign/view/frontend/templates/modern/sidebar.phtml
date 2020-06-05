@@ -1,0 +1,16 @@
+<div class="nbd-sidebar">
+    <?php
+        $active_design = wp_is_mobile() ? true : false;
+        $active_product = ($show_nbo_option && !$active_design && $settings['nbdesigner_display_product_option'] == '2' && !wp_is_mobile()) ? true : false;
+        $active_template = (!$active_product && !$active_design && isset($product_data["option"]['admindesign']) && $product_data["option"]['admindesign'] == "1") ? true : false;
+        $active_typos = (!$active_product && !$active_design && isset($product_data["option"]['admindesign']) && $product_data["option"]['admindesign'] == "0" && $settings["nbdesigner_enable_text"] == "yes") ? true : false;
+        $active_cliparts = (!$active_product && !$active_design && !$active_typos && $settings["nbdesigner_enable_clipart"] == "yes" && !$active_template) ? true : false;
+        $active_photos = (!$active_product && !$active_design && !$active_typos && !$active_cliparts && !$active_template && $settings["nbdesigner_enable_image"] == "yes") ? true : false;
+        $show_elements_tab = (!($settings["nbdesigner_enable_clipart"] == "yes" || $settings["nbdesigner_enable_qrcode"] == "yes" || $settings["nbdesigner_enable_vcard"] == "yes" || $settings["nbdesigner_enable_draw"] == "yes") || $settings["nbdesigner_hide_element_tab"] == "yes" ) ? false: true;
+        $active_elements = (!$active_product && !$active_design && !$active_typos && !$active_cliparts && !$active_photos && $show_elements_tab && !$active_template && $settings["nbdesigner_hide_element_tab"] == "no") ? true : false;
+        $active_layers = (!$active_product && !$active_design && !$active_typos && !$active_cliparts && !$active_photos && !$active_elements && !$active_template && $settings["nbdesigner_hide_layer_tab"] != "no") ? true : false;
+    ?>
+    <?php include 'sidebars/tab-nav.phtml'; ?>
+    <?php include 'sidebars/tab-content.phtml'; ?>
+    <?php include 'sidebars/preview.phtml'?>
+</div>

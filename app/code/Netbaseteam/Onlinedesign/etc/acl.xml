@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Acl/etc/acl.xsd">
+    <acl>
+        <resources>
+            <resource id="Magento_Backend::admin">
+                <resource id="Netbaseteam_Onlinedesign::onlinedesign" title="Onlinedesign Extension" sortOrder="40">
+					<resource id="Netbaseteam_Onlinedesign::manage_designer" title="Manage Designs" sortOrder="0">		
+						<resource id="Netbaseteam_Onlinedesign::onlinedesign_order" title="Orders" sortOrder="0" />
+						<resource id="Netbaseteam_Onlinedesign::onlinedesign_manage" title="Products" sortOrder="50" />				
+					</resource>
+					
+					<resource id="Netbaseteam_Onlinedesign::manage_art" title="Manage Arts" sortOrder="50">
+						<resource id="Netbaseteam_Onlinedesign::catart_manage" title="Categories Art" sortOrder="0" />
+						<resource id="Netbaseteam_Onlinedesign::onlinedesign_art" title="Arts" sortOrder="50" />
+					</resource>
+					
+					<resource id="Netbaseteam_Onlinedesign::manage_fonts" title="Manage Fonts" sortOrder="100">
+						<resource id="Netbaseteam_Onlinedesign::onlinedesign_catcustomfont" title="Categories Font" sortOrder="0" />
+						<resource id="Netbaseteam_Onlinedesign::onlinedesign_customfont" title="Custom Font" sortOrder="50" />
+						<resource id="Netbaseteam_Onlinedesign::onlinedesign_googlefont" title="Google Font" sortOrder="100" />
+					</resource>		
+					
+					<resource id="Netbaseteam_Onlinedesign::manage_colors" title="Manage Colors" sortOrder="150">
+						<resource id="Netbaseteam_Onlinedesign::onlinedesign_color" title="Colors" sortOrder="0" />
+					</resource>
+                </resource>				
+				
+                <resource id="Magento_Backend::stores">
+                    <resource id="Magento_Backend::stores_settings">
+                        <resource id="Magento_Config::config">
+                            <resource id="Netbaseteam_Onlinedesign::config_onlinedesign" title="Onlinedesign Configurations" sortOrder="50" />
+                        </resource>
+                    </resource>
+                </resource>
+            </resource>
+        </resources>
+    </acl>
+</config>

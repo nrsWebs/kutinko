@@ -1,0 +1,11 @@
+<div class="v-layout nbd-layout">
+    <?php include 'stages.phtml';?>
+    <?php include 'toolbar-zoom.phtml';?>
+    <div class="v-toolbox" ng-show="stages[currentStage].states.isActiveLayer">
+        <?php include 'toolbox/toolbox-text.phtml'?>
+        <?php include 'toolbox/toolbox-image.phtml'?>
+        <?php include 'toolbox/toolbox-group.phtml'?>
+        <?php include 'toolbox/toolbox-path.phtml'?>
+    </div>
+    <?php include 'loading-workflow.phtml';?>
+</div>

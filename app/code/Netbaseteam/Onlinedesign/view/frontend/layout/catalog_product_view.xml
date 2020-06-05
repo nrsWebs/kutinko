@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<page layout="1column" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <css src="Netbaseteam_Onlinedesign::css/nbdesigner.min.css"/>
+    </head>
+
+	<body>
+        <referenceBlock name="product.info.addtocart">
+            <action method="setTemplate">
+                <argument name="template" xsi:type="string">Netbaseteam_Onlinedesign::catalog/product/view/addtocart.phtml</argument>
+            </action>
+        </referenceBlock>
+
+        <referenceBlock name="product.info.addtocart.additional">
+            <action method="setTemplate">
+                <argument name="template" xsi:type="string">Netbaseteam_Onlinedesign::catalog/product/view/addtocart.phtml</argument>
+            </action>
+        </referenceBlock>
+        <referenceContainer name="product.info.form.content">
+            <block class="Netbaseteam\Onlinedesign\Block\Onlinedesign" name="onlinedesign.section" template="sections.phtml"/>
+        </referenceContainer>
+        <referenceBlock name="product.info.form.options">
+            <block class="Netbaseteam\Onlinedesign\Block\Onlinedesign" name="onlinedesign.section" template="sections.phtml"/>
+        </referenceBlock>
+        <referenceBlock name="product.info">
+            <action method="setTemplate">
+                <argument name="template" xsi:type="string">Netbaseteam_Onlinedesign::product/view/form.phtml</argument>
+            </action>
+        </referenceBlock>
+        <move element="onlinedesign.section" destination="product.info.main" after="-" />
+    </body>
+</page>

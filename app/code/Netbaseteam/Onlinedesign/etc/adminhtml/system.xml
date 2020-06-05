@@ -1,0 +1,516 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="cmsmart" translate="label" sortOrder="1000">
+            <label>NetBase Team</label>
+        </tab>
+		<section id="nb_onlinedesign_license" translate="label" type="text" sortOrder="0" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>License Online Design</label>
+            <tab>cmsmart</tab>
+            <resource>Netbaseteam_Onlinedesign::license_onlinedesign</resource>
+
+            <group id="license" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>License</label>
+                <field id="license_code" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>License key</label>
+                </field>
+                <field id="build_indexes" translate="label comment tooltip" type="button" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="2">
+                    <frontend_model>Netbaseteam\Onlinedesign\Block\Adminhtml\Upgrade\Button</frontend_model>
+                </field>
+            </group>
+            <group id="get_license" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Get Free license key</label>
+                <field id="get_license_code_email" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Email</label>
+                    <validate>required-entry validate-email</validate>
+                    <comment>Please fill correct email,License key will be send to your email.</comment>
+                </field>
+                <field id="get_license_code_user" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Fullname</label>
+                </field>
+                <field id="build_indexesx" translate="label comment tooltip" type="button" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="2">
+                    <frontend_model>Netbaseteam\Onlinedesign\Block\Adminhtml\Upgrade\FormLicense</frontend_model>
+                </field>
+            </group>
+        </section>
+        <section id="onlinedesign" translate="label" sortOrder="130" showInDefault="1" showInWebsite="1" showInStore="1">
+            <class>separator-top</class>
+            <label>Onlinedesign</label>
+            <tab>cmsmart</tab>
+            <resource>Netbaseteam_Onlinedesign::config_onlinedesign</resource>
+            <group id="general" translate="label" type="text" sortOrder="0" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>General</label>
+                <field id="enabled" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable Onlinedesign On Frontend</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+				
+				<field id="btn_name" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Label of button design</label>	
+					<depends>
+						<field id="onlinedesign/general/enabled">1</field>
+					</depends>
+                </field>
+				
+				<field id="thumb_size" translate="label" type="text" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Thumbnail preview design size</label>	
+					<comment>Unit: px. Format: width x height. Example: 60x76 (pixcel)</comment>
+					<depends>
+						<field id="onlinedesign/general/enabled">1</field>
+					</depends>
+				</field>
+				
+				<field id="thumb_quality" translate="label" type="text" sortOrder="150" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Thumbnail Quality</label>	
+					<comment>Unit: %. Quality of the generated thumbnails between 0 - 100 (%)</comment>
+					<depends>
+						<field id="onlinedesign/general/enabled">1</field>
+					</depends>
+				</field>
+				
+				<field id="default_dpi" translate="label" type="text" sortOrder="200" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Default output DPI</label>	
+					<comment>Dot Per Inch</comment>
+					<depends>
+						<field id="onlinedesign/general/enabled">1</field>
+					</depends>
+				</field>
+
+				<field id="show_layer_design" translate="label" type="select" sortOrder="200" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Show Dimension Layer Design</label>
+					<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+				</field>
+
+				<field id="unit" translate="label" type="select" sortOrder="250" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Dimensions Unit</label>
+                    <source_model>Netbaseteam\Onlinedesign\Model\Unit</source_model>
+					<comment>This controls what unit you will define lengths in.</comment>
+					<depends>
+						<field id="onlinedesign/general/enabled">1</field>
+					</depends>
+				</field>
+				
+				<field id="hide_on_mobile" translate="label" type="select" sortOrder="300" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Not Hide On Smartphones</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+					<depends>
+						<field id="onlinedesign/general/enabled">1</field>
+					</depends>
+				</field>
+				
+				<field id="owner_email" translate="label" type="text" sortOrder="350" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Admin Sender Email</label>	
+					<comment>Enter recipients (comma separated) for this email.</comment>
+					<depends>
+						<field id="onlinedesign/general/enabled">1</field>
+					</depends>
+				</field>
+            </group>
+
+			<group id="text_options" translate="label" type="text" sortOrder="0" showInDefault="1" showInWebsite="1" showInStore="1">
+				<label>Text Options</label>
+				<field id="enable_add_text" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Enable tool Add Text</label>
+					<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+				</field>
+				<field id="default_font_subset" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Default font subset</label>
+					<source_model>Netbaseteam\Onlinedesign\Model\Config\Source\Font\Subset</source_model>
+				</field>
+				<field id="check_text_language" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Enable check text language</label>
+					<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+					<comment>Show warning when the font can not show some of the customer added text character.</comment>
+				</field>
+				<field id="default_text" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Default text</label>
+					<comment>Default text when user add text .</comment>
+				</field>
+				<field id="default_color" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Default Color</label>
+					<frontend_model>Netbaseteam\Onlinedesign\Block\Adminhtml\System\Colorpicker</frontend_model>
+					<comment>Default color text when user add text. If you're using limited color palette, make sure this color (in the tab Color on config of module)  has been defined</comment>
+					<depends>
+						<field id="onlinedesign/text_options/enable_add_text">1</field>
+					</depends>
+				</field>
+				<field id="curved_text" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Enable Curved Text</label>
+					<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+				</field>
+				<field id="text_transform_unproportionally" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Enable Text transform unproportionally</label>
+					<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+					<comment> When true, Text can be transformed unproportionally</comment>
+				</field>
+				<field id="default_font_size" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Default font sizes ( pt )</label>
+					<comment> Increment font sizes in pt seperated by a comma. Do not use dots or spaces. Example: 6,8,10,12,14,16</comment>
+				</field>
+				<field id="min_font_size" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Force min font size</label>
+					<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+					<comment>Disallow text font size less than min value in list font sizes.</comment>
+				</field>
+				<field id="show_hide_features" type="multiselect" translate="label" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Show/hide features</label>
+					<source_model>Netbaseteam\Onlinedesign\Model\Config\Source\Font</source_model>
+					<comment>Show/hide features in frontend</comment>
+				</field>
+			</group>
+
+			<group id="main_upload_design" translate="label" type="text" sortOrder="0" showInDefault="1" showInWebsite="1" showInStore="1">
+				<label>Upload Design</label>
+				<field id="max_upload_size" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Max Upload Size</label>
+				</field>
+				<field id="min_upload_size" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Min Upload Size</label>
+				</field>
+				<field id="number_upload" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Number of upload</label>
+					<source_model>Netbaseteam\Onlinedesign\Model\Config\Source\Number\Upload</source_model>
+				</field>
+				<field id="allowed_file_type" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Allowed file types</label>
+					<comment>example: jpg,png,pdf</comment>
+				</field>
+				<field id="disallow_file_type" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Disallowed file types</label>
+					<comment>example: bmp,ps</comment>
+				</field>
+			</group>
+
+			<group id="design_tool" translate="label" type="text" sortOrder="0" showInDefault="1" showInWebsite="1" showInStore="1">
+				<label>Design Tool</label>
+				<field id="min_dpi_upload" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Min DPI Upload</label>
+				</field>
+			</group>
+
+			<group id="jpg_settings" translate="label" type="text" sortOrder="0" showInDefault="1" showInWebsite="1" showInStore="1">
+				<label>JPG settings</label>
+				<field id="icc_profile" translate="label" type="multiselect" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Default ICC profile</label>
+					<source_model>Netbaseteam\Onlinedesign\Model\Config\Source\Icc\Profile</source_model>
+					<comment>Set default ICC profile for jpg image.
+						This feature require your server support Imagemagick with lcms2.</comment>
+				</field>
+			</group>
+
+			<group id="clip_art" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Clipart Options</label>
+                <field id="enable_clipart" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable Tool Add Clipart</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+
+				<field id="show_hide_features" type="multiselect" translate="label" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Show/hide features</label>
+					<source_model>Netbaseteam\Onlinedesign\Model\Config\Source\Clipart</source_model>
+					<comment>Show/hide features in frontend</comment>
+				</field>
+            </group>
+			
+			<group id="image_options" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Image Options</label>
+                <field id="enable_add_image" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable Tool Add Image</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+				
+				<field id="enable_upload_image" translate="label" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable Upload Image</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+					<depends>
+						<field id="onlinedesign/image_options/enable_add_image">1</field>
+					</depends>
+				</field>
+
+				<field id="auto_fit_uploaded" translate="label" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Auto fit uploaded image with the stage</label>
+					<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+					<depends>
+						<field id="onlinedesign/image_options/enable_add_image">1</field>
+					</depends>
+				</field>
+				
+				<field id="login_require" translate="label" type="checkbox" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Login Required</label>
+					<comment>
+						Users must create an account in your Magento site and need to be logged-in to upload images
+					</comment>
+					<depends>
+						<field id="onlinedesign/image_options/enable_add_image">1</field>
+					</depends>
+				</field>
+				<field id="upload_multi_image" translate="label" type="checkbox" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Allow upload multiple images</label>
+					<comment>
+						Allow the customer upload multiple images.
+					</comment>
+					<depends>
+						<field id="onlinedesign/image_options/enable_add_image">1</field>
+					</depends>
+				</field>
+
+				<field id="allow_download_design" translate="label" type="select" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Allow download design in editor</label>
+					<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+					<comment>
+						Allow the customer download their designs in editor ( Modern layout ).
+					</comment>
+
+				</field>
+
+				<field id="png_download" translate="label" type="select" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Allow PNG Download</label>
+					<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+					<depends>
+						<field id="onlinedesign/image_options/allow_download_design">1</field>
+					</depends>
+				</field>
+
+				<field id="jpg_download" translate="label" type="select" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Allow JPG Download</label>
+					<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+					<comment>
+						Choose design file type which the customer can download. Design in JPG format require PHP Imagick.
+					</comment>
+					<depends>
+						<field id="onlinedesign/image_options/allow_download_design">1</field>
+					</depends>
+				</field>
+
+				<field id="svg_download" translate="label" type="select" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Allow SVG Download</label>
+					<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+					<depends>
+						<field id="onlinedesign/image_options/allow_download_design">1</field>
+					</depends>
+				</field>
+
+				<field id="pdf_download" translate="label" type="select" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Allow PDF Download</label>
+					<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+					<depends>
+						<field id="onlinedesign/image_options/allow_download_design">1</field>
+					</depends>
+				</field>
+
+				<field id="max_upload_files" type="text" translate="label" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Max upload files at once</label>
+					<depends>
+						<field id="onlinedesign/image_options/enable_add_image">1</field>
+					</depends>
+				</field>
+				
+				<field id="upload_max" translate="label" type="text" sortOrder="200" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Max size upload</label>
+					<comment>Unit: Mb. Default: 5Mb</comment>
+					<depends>
+						<field id="onlinedesign/image_options/enable_add_image">1</field>
+					</depends>
+				</field>
+
+				<field id="upload_min" translate="label" type="text" sortOrder="150" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Min size upload</label>
+					<comment>Unit: Mb. Default: 0Mb</comment>
+					<depends>
+						<field id="onlinedesign/image_options/enable_add_image">1</field>
+					</depends>
+				</field>
+
+				<field id="upload_min_resolution" translate="label" type="text" sortOrder="150" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Min image upload resolution</label>
+					<depends>
+						<field id="onlinedesign/image_options/enable_add_image">1</field>
+					</depends>
+				</field>
+				<field id="enable_low_resolution" translate="label" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Enable low resolution image</label>
+					<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+					<comment>Alert a message to the customer</comment>
+					<depends>
+						<field id="onlinedesign/image_options/enable_add_image">1</field>
+					</depends>
+				</field>
+				
+				<field id="enable_image_url" translate="label" type="select" sortOrder="250" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable images from url</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+					<depends>
+						<field id="onlinedesign/image_options/enable_add_image">1</field>
+					</depends>
+				</field>
+
+				<field id="enable_gdriver" translate="label" type="select" sortOrder="250" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable get images from Google Drive</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+					<depends>
+						<field id="onlinedesign/image_options/enable_add_image">1</field>
+					</depends>
+				</field>
+
+				<field id="enable_pixabay" translate="label" type="select" sortOrder="250" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable search from Pixabay</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+					<depends>
+						<field id="onlinedesign/image_options/enable_add_image">1</field>
+					</depends>
+				</field>
+
+				<field id="enable_unsplash" translate="label" type="select" sortOrder="250" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable search from Unsplash</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+					<depends>
+						<field id="onlinedesign/image_options/enable_add_image">1</field>
+					</depends>
+				</field>
+
+				<field id="enable_svg_code" translate="label" type="select" sortOrder="250" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Enable SVG code</label>
+					<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+					<depends>
+						<field id="onlinedesign/image_options/enable_add_image">1</field>
+					</depends>
+				</field>
+				<field id="enable_capture_webcame" translate="label" type="select" sortOrder="300" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable Capture Images By Webcam</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+					<depends>
+						<field id="onlinedesign/image_options/enable_add_image">1</field>
+					</depends>
+				</field>
+				
+				<field id="enable_facebook" translate="label" type="select" sortOrder="350" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable Facebook Photos</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+					<depends>
+						<field id="onlinedesign/image_options/enable_add_image">1</field>
+					</depends>
+				</field>
+
+				<field id="facebook_api_key" translate="label" type="text" sortOrder="400" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Facebook API Key</label>
+					<comment><![CDATA[ For insert image from facebook. Get <a href="javascript:void(0)" id="myBtn" onClick = "open_help_faceapi(); return false;">Facebook API</a> access info.]]></comment>
+					<depends>
+						<field id="onlinedesign/image_options/enable_add_image">1</field>
+						<field id="onlinedesign/image_options/enable_facebook">1</field>
+					</depends>
+				</field>
+
+				<field id="enable_instagram" translate="label" type="select" sortOrder="410" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable Instagram Photos</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+					<depends>
+						<field id="onlinedesign/image_options/enable_add_image">1</field>
+					</depends>
+				</field>
+
+				<field id="enable_dropbox" translate="label" type="select" sortOrder="410" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable Dropbox Photos</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+					<depends>
+						<field id="onlinedesign/image_options/enable_add_image">1</field>
+					</depends>
+				</field>
+				
+				<field id="show_term" translate="label" type="select" sortOrder="450" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Show Terms And Conditions</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+					<depends>
+						<field id="onlinedesign/image_options/enable_add_image">1</field>
+					</depends>
+				</field>
+				
+				<field id="term_text" translate="label" type="textarea" sortOrder="500" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Terms And Conditions Upload Image</label>
+					<comment>HTML Tags Supported.</comment>
+					<depends>
+						<field id="onlinedesign/image_options/enable_add_image">1</field>
+						<field id="onlinedesign/image_options/show_term">1</field>
+					</depends>
+				</field>
+            </group>
+			
+			<group id="free_draw" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Free Draw</label>
+                <field id="enable_free_draw" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable Free Draw</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+				<field id="show_hide_features" type="multiselect" translate="label" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Show/hide features</label>
+					<source_model>Netbaseteam\Onlinedesign\Model\Config\Source\Draw</source_model>
+					<comment>Show/hide features in frontend</comment>
+				</field>
+            </group>
+			
+			<group id="qr_code" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Qr Code Options</label>
+                <field id="enable_qrcode" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable QRCode</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+				
+				<field id="qr_text" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Default Text</label>
+					<depends>
+						<field id="onlinedesign/qr_code/enable_qrcode">1</field>
+					</depends>
+				</field>
+            </group>
+			<group id="misc" translate="label" type="text" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
+				<label>Misc</label>
+				<field id="enable_scale_center" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Enable scale object from center</label>
+					<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+					<comment>Change the default object scale origin from corner to center.</comment>
+				</field>
+				<field id="disable_primary_template" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Disable auto load primary tempalte.</label>
+					<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+					<comment>Always show blank design pages and only load templates until the customer choose them.</comment>
+				</field>
+				<field id="lazyload_default_template" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Disable auto load primary template.</label>
+					<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+					<comment>Lazy load default template if the product has template and the default templates is a very large objects.</comment>
+				</field>
+				<field id="enable_teamplate_mapping" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Enable template mapping.</label>
+					<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+					<comment>Check this option if you want that the template fields( layers ) will be filled automatically.</comment>
+				</field>
+				<field id="enable_vcard" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Enable vCard</label>
+					<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+				</field>
+			</group>
+			<group id="color" translate="label" type="text" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Color</label>
+                <field id="show_all_color" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Show All Color</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+					<comment>When this option is NO. You can set more colors in menu Onlinedesign -> Manage Colors</comment>
+				</field>
+            </group>
+
+            <group id="product_option" translate="label" type="text" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Product Option</label>
+                <field id="show_in_editor" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Show in editor</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+				</field>
+                <field id="display_type" translate="label" type="select" sortOrder="2" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Display Type</label>
+                    <source_model>Netbaseteam\Onlinedesign\Model\Config\Source\ProductOptionType</source_model>
+                    <depends>
+						<field id="onlinedesign/product_option/show_in_editor">1</field>
+					</depends>
+				</field>
+            </group>
+        </section>
+    </system>
+</config>

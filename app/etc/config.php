@@ -271,6 +271,7 @@ return [
         'MSP_TwoFactorAuth' => 1,
         'Mageplaza_Core' => 1,
         'Mageplaza_Smtp' => 1,
+        'Netbaseteam_Onlinedesign' => 1,
         'Redsys_Redsys' => 1,
         'Temando_ShippingRemover' => 1,
         'Vertex_Tax' => 1,

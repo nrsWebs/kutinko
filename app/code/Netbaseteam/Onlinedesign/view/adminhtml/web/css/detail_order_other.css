@@ -1,0 +1,38 @@
+.owl-stage-outer {
+	margin-left: -1px;
+}
+.owl-prev, .owl-next {
+	padding: 10px;
+}
+
+.nbdesigner_order_file_submit_button{
+	background: #ed6502 none repeat scroll 0 0;
+    border-color: #ed6502 #a04300 #a04300 #ed6502;
+    color: #fff;
+    text-decoration: none;
+	border-radius: 3px;
+    border-width: 1px;
+    box-sizing: border-box;
+    cursor: pointer;
+    display: inline-block !important;
+    font-size: 13px;
+    height: 25px;
+    line-height: 26px;
+    margin: 0;
+    padding: 0 10px 1px;
+	white-space: nowrap;
+	margin: 15px 0 0;
+}
+
+a.nbdesigner_order_file_submit_button:hover {
+    color: #fff;
+    text-decoration: none;
+}
+
+.nbdesigner-right {
+    float: right;
+}
+
+.nb_order_design_infos table td{
+	width: 165px;
+} 

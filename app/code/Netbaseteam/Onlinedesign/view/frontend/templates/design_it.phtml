@@ -1,0 +1,88 @@
+<?php
+/* add js for */
+echo $this->getLayout()->createBlock('Netbaseteam\Onlinedesign\Block\Onlinedesign')
+    ->setTemplate('Netbaseteam_Onlinedesign::nbdesigner.phtml')->toHtml();
+?>
+
+<?php
+$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+$helper = $this->helper('Netbaseteam\Onlinedesign\Helper\Data');
+include_once($helper->getLibOnlineDesign() . '/Onlinedesign/includes/class.helper.php');
+include_once($helper->getLibOnlineDesign() . '/Onlinedesign/includes/class-util.php');
+$hide_on_mobile = nbdesigner_get_option('nbdesigner_disable_on_smartphones');
+if (wp_is_mobile() && $hide_on_mobile == 'yes' || !wp_is_mobile()) {
+    $product_id = $block->getCurrentProduct()->getId();
+    $statusDesign = $this->helper('Netbaseteam\Onlinedesign\Helper\Data')->getStatusDesign($product_id);
+    $statusUploadDesign = $block->getStatusUploadDesign($product_id);
+    $visuaLayout = $helper->getDesignLayout($product_id);
+    $buttonDesignOnline = nbdesigner_get_option("nbdesigner_start_design_and_upload");
+    $catalogSession = $objectManager->create('Magento\Customer\Model\Session');
+    $catalogSession->setNbdesignerPid($product_id);
+    $nbdesigner_enable = get_post_meta($product_id, "_nbdesigner_enable", true);
+    $title_btn = nbdesigner_get_option("nbdesigner_button_label");
+    if ($this->getRequest()->getParam('orderid')) {
+        $title_btn = __("Design Again");
+    }
+    if (!$visuaLayout) {
+        $src = $this->getUrl('onlinedesign/index/design', array('_current' => true));
+        $src .= "?product_id=" . $product_id;
+        if (isset($_GET['task']) && $_GET['task'] == "create") {
+            $src .= "?product_id=" . $product_id . "&task=create&rd=admin_templates";
+            $title_btn = __("Create Template");
+        }
+    }
+    ?>
+    <?php if ($statusDesign == 1 && !$visuaLayout): ?>
+        <a id="dsgn-btn-name"
+           style="display: none;"><?php echo $nbdesigner_enable == 1 && $statusUploadDesign == 1 ? $buttonDesignOnline : $title_btn; ?></a>
+
+        <a id="triggerDesign"
+           class="button nbdesign-button"><?php echo $nbdesigner_enable == 1 && $statusUploadDesign == 1 ? $buttonDesignOnline : $title_btn; ?></a>
+        <br/>
+    <?php endif; ?>
+    <?php if ($visuaLayout == 1): ?>
+        <link type="text/css" href="<?php echo NBDESIGNER_PLUGIN_URL . 'assets/css/vista.css'; ?>" rel="stylesheet"
+              media="all"/>
+        <script>
+            require([
+                'jquery',
+                'masonry',
+                'bridget',
+                'nbvista',
+                'modern',
+                'curved',
+                'nblodash',
+                'imagesLoaded',
+                'nbangular',
+                'fabric',
+                'tooltipster',
+                'angular-spectrum',
+                'Webcam',
+                'qrcode',
+                'fontface',
+                'designmodern',
+                'spectrum',
+                'perfect-scrollbar',
+                'jqueryUiBlock'
+            ], function ($, Masonry, jQueryBridget) {
+                jQueryBridget('masonry', Masonry, $);
+            });
+        </script>
+
+    <?php endif; ?>
+    <?php
+    if (isset($_GET['task']) && $_GET['task'] == "create") {
+        ?>
+        <script>
+            require([
+                'jquery'
+            ], function ($) {
+                $(document).ready(function ($) {
+                    $("button.btn-cart").css("display", "none");
+                    $("#triggerDesign").text($("#dsgn-btn-name").text());
+                });
+            });
+        </script>
+    <?php } ?>
+<?php } ?>
+

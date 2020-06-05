@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="admin-2columns-left" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <css src="Netbaseteam_Onlinedesign/css/admin-nbdesigner.css"/>
+        <css src="Netbaseteam_Onlinedesign/css/nbd-general.css"/>
+        <css src="Netbaseteam_Onlinedesign/css/popup_image.css"/>
+        <css src="Netbaseteam_Onlinedesign/css/font-awesome/css/font-awesome.css"/>
+        <css src="Netbaseteam_Onlinedesign/css/detail_order.css"/>
+        <css src="Netbaseteam_Onlinedesign/css/tooltip.css"/>
+        <css src="Netbaseteam_Onlinedesign/css/evol/evol-colorpicker.css"/>
+        <link src="Netbaseteam_Onlinedesign::js/onlinedesign.min.js"/>
+    </head>
+    <update handle="editor"/>
+    <body>
+        <referenceContainer name="content">
+            <block class="Netbaseteam\Onlinedesign\Block\Adminhtml\Onlinedesign\Edit" name="onlinedesign_edit"/>
+        </referenceContainer>
+        <referenceContainer name="left">
+            <block class="Netbaseteam\Onlinedesign\Block\Adminhtml\Onlinedesign\Edit\Tabs" name="onlinedesign_edit_tabs">
+                <block class="Netbaseteam\Onlinedesign\Block\Adminhtml\Onlinedesign\Edit\Tab\Main" name="onlinedesign_edit_tab_main"/>
+                <block class="Netbaseteam\Onlinedesign\Block\Adminhtml\Onlinedesign\Edit\Tab\Content" name="onlinedesign_edit_tab_content"/>
+                <action method="addTab">
+                    <argument name="name" xsi:type="string">main_section</argument>
+                    <argument name="block" xsi:type="string">onlinedesign_edit_tab_main</argument>
+                </action>
+				
+                <action method="addTab">
+                    <argument name="name" xsi:type="string">content_section</argument>
+                    <argument name="block" xsi:type="string">onlinedesign_edit_tab_content</argument>
+                </action>
+            </block>
+        </referenceContainer>
+        <referenceContainer name="page.main.actions">
+            <block class="Magento\Backend\Block\Store\Switcher" name="store_switcher">
+                <action method="setUseConfirm">
+                    <argument name="params" xsi:type="string">1</argument>
+                </action>
+            </block>
+        </referenceContainer>
+    </body>
+</page>

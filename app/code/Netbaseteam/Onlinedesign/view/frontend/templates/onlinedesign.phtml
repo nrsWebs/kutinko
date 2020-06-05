@@ -1,0 +1,29 @@
+<?php /** @var $block \Netbaseteam\Onlinedesign\Block\Onlinedesign\Index */ ?>
+<?php $_designCollection = $block->getCollectionOnlineDesign(); ?>
+<?php if (is_array($_designCollection) && count($_designCollection)): ?>
+    <div class="products-design-wrapper page-onlinedesign">
+        <div class="row display-clear">
+            <?php foreach ($_designCollection as $col): ?>
+                <?php
+                    $productId = $col->getProductId();
+                    $img = $block->getImageDesign($productId) ? $block->getImageDesign($productId) : $block->getProductImage($productId);
+                ?>
+                <?php if ($img) : ?>
+                    <div class="page-onlinedesign__inner col-sm-6 col-md-3 col-lg-3">
+                        <div class="product-item-info" data-container="product-grid">
+                            <div class="product-online-design-img"><?php echo $img; ?></div>
+                            <div class="product-online-design-info">
+                                <h4>
+                                    <a
+                                   href="<?php echo $block->getProductDesignUrl($productId);?>"><?php echo __('Start Design'); ?><?php echo $block->getProductDesignName($productId); ?></a>
+                                </h4>
+                                <a class="button"
+                                   href="<?php echo $block->getProductDesignUrl($productId) . '?load_online_design=1'; ?>"><?php echo __('Start Design'); ?></a>
+                            </div>
+                        </div>
+                    </div>
+                <?php endif; ?>
+            <?php endforeach; ?>
+        </div>
+    </div>
+<?php endif; ?>

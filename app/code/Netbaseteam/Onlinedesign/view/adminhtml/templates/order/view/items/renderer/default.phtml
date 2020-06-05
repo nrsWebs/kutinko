@@ -1,0 +1,116 @@
+<?php
+/**
+ * Copyright © 2013-2017 Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+// @codingStandardsIgnoreFile
+
+?>
+<?php /** @var \Magento\Sales\Block\Adminhtml\Order\View\Items\Renderer\DefaultRenderer $block */ ?>
+<?php $_item = $block->getItem() ?>
+<?php $block->setPriceDataObject($_item) ?>
+<tr>
+    <?php $i = 0;
+    $columns = $block->getColumns();
+    $lastItemNumber = count($columns) ?>
+    <?php foreach ($columns as $columnName => $columnClass): ?>
+        <?php $i++; ?>
+        <td class="<?php echo /* @noEscape */
+        $columnClass ?><?php /* @noEscape */
+        echo($i === $lastItemNumber ? ' last' : '') ?>"><?php /* @escapeNotVerified */
+            echo $block->getColumnHtml($_item, $columnName) ?>
+            <?php if ($columnName == "product"): ?>
+
+                <div class="online-design-attach-file">
+                    <?php
+                    // online design
+                    $helper = $this->helper('\Netbaseteam\Onlinedesign\Helper\Integrate');
+                    $productId = $_item->getProductId();
+                    echo $helper->showOnlineDesignAttachFile($_item);
+                    echo $helper->getUploadOrder($_item);
+                    ?>
+                    <!-- /* Download all - start */ -->
+                    <?php
+                    $helper = $this->helper('Netbaseteam\Onlinedesign\Helper\Data');
+                    $order_id = $this->getRequest()->getParam('order_id');
+                    $objectManagerr = \Magento\Framework\App\ObjectManager::getInstance();
+                    $order = $objectManagerr->create('\Magento\Sales\Model\Order')->load($order_id);
+                    $order->getAllVisibleItems();
+                    $orderItems = $order->getItemsCollection()
+                        ->addAttributeToSelect('*')
+                        ->load();
+                    $download_url = $this->getUrl('onlinedesign/order/downloadall',
+                        array(
+                            '_current' => true,
+                            'download-all' => true,
+                            'order_id' => $order_id,
+                        )
+                    );
+                    $download_upload = $this->getUrl('onlinedesign/order/downloadupload',
+                        array(
+                            '_current' => true,
+                            'download-all' => true,
+                            'order_id' => $order_id,
+                            'pid' => $productId
+                        )
+                    );
+                    ?>
+
+                    <!-- /* Download all - end */ -->
+                </div>
+            <?php endif; ?>
+        </td>
+
+    <?php endforeach; ?>
+</tr>
+
+<?php
+$status = 0;
+$onlinedesign_pid_arr = array();
+$items = $order->getAllVisibleItems();
+foreach($items as $item):
+    if($item->getNbdesignerJson() != null || $item->getNbdesignerJson() != "" && in_array($item->getNbdesignerPid(), $onlinedesign_pid_arr)){
+        $path = $item->getNbdesignerJson();
+        $path_arr = json_decode($path);
+        if(file_exists($path_arr[0])){
+            $status = 1;
+            break;
+        }
+    }
+endforeach;
+$view_url = $this->getUrl('onlinedesign/order/view',
+    array(
+            '_current' => true,
+            'id' => $productId,
+            'order_id' => $order_id,
+    )
+);
+?>
+<?php if($status == 1):  ?>
+    <tr>
+        <td>
+            <span>
+                <a href="<?php echo $view_url; ?>"
+                   target="_blank"><?php echo __('View detail') ?>
+                </a>
+            </span>
+        </td>
+    </tr>
+    <tr>
+        <td><?php echo __('Download All Design') ?></td>
+        <td>
+            <a href="<?php echo $download_url; ?>" class="button button-primary nbdesigner_order_file_submit_button"
+               id="nbdesigner_download"><?php echo __('Download') ?></a>
+        </td>
+    </tr>
+<?php endif; ?>
+<?php if($this->helper('\Netbaseteam\Onlinedesign\Helper\Integrate')->getUploadOrder($_item)):?>
+<tr>
+    <td><?php echo __('Download Upload Client') ?></td>
+    <td>
+        <a href="<?php echo $download_upload; ?>" class="button button-primary nbdesigner_order_file_submit_button"
+           id="nbdesigner_download"><?php echo __('Download') ?></a>
+    </td>
+</tr>
+<?php endif;?>

@@ -1,0 +1,28 @@
+.nbd-helper {
+    position: relative;
+    display: inline-block;
+    /* border-bottom: 1px dotted black; */
+}
+
+.nbd-helper .tooltiptext {
+    visibility: hidden;
+    width: 360px;
+    background-color: #fff;
+    color: #000;
+    text-align: left;
+    border-radius: 6px;
+	border: 1px solid #252121;
+	padding: 10px;
+	font-weight: normal;
+
+    /* Position the tooltip */
+    position: absolute;
+    z-index: 1;
+	
+	left: -195px;
+	
+}
+
+.nbd-helper:hover .tooltiptext {
+    visibility: visible;
+}

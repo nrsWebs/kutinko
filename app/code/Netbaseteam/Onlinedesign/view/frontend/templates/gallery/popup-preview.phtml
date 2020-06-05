@@ -1,0 +1,32 @@
+<?php
+$helper = $this->helper('Netbaseteam\Onlinedesign\Helper\Data');
+$collection = $helper->getTemplateId();
+foreach ($collection as $item) {
+    $name = $item->getName();
+    $large_image = $item->getImage();
+    $folder= $item->getFolder();
+    $pid = $item->getProductId();
+}
+$productUrl = $helper->getProductUrl($pid);
+$baseUrl = $this->helper('Netbaseteam\Onlinedesign\Helper\Data')->getBaseUrlRoot();
+//$link_detail_design = $baseUrl;
+$link_start_design =  $productUrl . '?product_id=' . $pid . '&nbd_item_key=' . $folder . '&rd=use';
+?>
+
+<p class="nbd-popup-design-name"><?php echo $name; ?></p>
+<div class="nbd-popup-large-img">
+    <img src="<?php echo $large_image; ?>" id="nbd-popup-large-preview"/>
+</div>
+<div class="nbd-popup-actions">
+<!--    <a style="color: #0c8ea7;" href="--><?php //echo $link_detail_design; ?><!--">--><?php //echo __('More about this design'); ?><!--</a>-->
+    <a class="nbd-popup-start-design" href="<?php echo $link_start_design; ?>"><?php echo __('Use this design'); ?></a>
+</div>
+<div class="nbd-popup-list-preview">
+    <img class="nbd-popup-list-preview-img" src="<?php echo $large_image ?>" onclick="changePreviewImage(this)"/>
+</div>
+<style>
+   .onlinedesign-template-index a.nbd-popup-start-design {
+        color: white;
+    }
+</style>
+
