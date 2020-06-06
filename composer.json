@@ -32,6 +32,8 @@
         "magento/module-wishlist-sample-data": "100.3.*",
         "magento/product-community-edition": "2.3.5-p1",
         "magento/sample-data-media": "100.3.*",
+        "mageplaza/magento-2-spanish-language-pack": "dev-master",
+        "mageplaza/module-delete-orders": "^1.2",
         "mageplaza/module-smtp": "^1.3"
     },
     "require-dev": {
