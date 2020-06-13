@@ -11,10 +11,11 @@
         "sort-packages": true
     },
     "require": {
+        "ethanyehuda/magento2-cronjobmanager": "^1.10",
         "magento/product-community-edition": "2.3.5-p1",
+        "magepal/magento2-gmailsmtpapp": "^2.6",
         "mageplaza/magento-2-spanish-language-pack": "dev-master",
-        "mageplaza/module-delete-orders": "^1.2",
-        "magepal/magento2-gmailsmtpapp": "^2.6"
+        "mageplaza/module-delete-orders": "^1.2"
     },
     "require-dev": {
         "allure-framework/allure-phpunit": "~1.2.0",

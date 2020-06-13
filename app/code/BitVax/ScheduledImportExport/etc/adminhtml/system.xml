@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="bitvax" translate="label" sortOrder="10">
+            <label>BitVax</label>
+        </tab>
+        <section id="scheduled_import_export" translate="label" sortOrder="130" showInDefault="1" showInWebsite="1" showInStore="1">
+            <class>separator-top</class>
+            <label>Scheduled Import/Export</label>
+            <tab>bitvax</tab>
+            <resource>BitVax_ScheduledImportExport::scheduled_import_export_config</resource>
+            <group id="general" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
+                <label>General Configuration</label>
+                <field id="enable" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Module Enable</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="behavior" translate="label" type="select" sortOrder="2" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Import Behavior</label>
+                    <source_model>BitVax\ScheduledImportExport\Model\Config\System\Source\Behavior</source_model>
+                </field>
+                <field id="validation_strategy" translate="label" type="select" sortOrder="3" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Import Behavior</label>
+                    <source_model>BitVax\ScheduledImportExport\Model\Config\System\Source\ValidationStrategy</source_model>
+                </field>
+                <field id="allowed_error_count" translate="label" type="text" sortOrder="4" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Allowed Errors Count</label>
+                    <validate>validate-no-empty</validate>
+                </field>
+                <field id="import_field_separator" translate="label" type="text" sortOrder="5" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Field separator</label>
+                    <validate>validate-no-empty</validate>
+                </field>
+                <field id="import_multiple_value_separator" translate="label" type="text" sortOrder="6" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Multiple value separator</label>
+                    <validate>validate-no-empty</validate>
+                </field>
+                <field id="import_empty_attribute_value_constant" translate="label" type="text" sortOrder="7" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Empty attribute value constant</label>
+                    <validate>validate-no-empty</validate>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

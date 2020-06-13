@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <scheduled_import_export>
+            <general>
+                <enable>0</enable>
+                <behavior>append</behavior>
+                <validation_strategy>validation-stop-on-errors</validation_strategy>
+                <allowed_error_count>10</allowed_error_count>
+                <import_field_separator>,</import_field_separator>
+                <import_multiple_value_separator>,</import_multiple_value_separator>
+                <import_empty_attribute_value_constant>__EMPTY__VALUE__</import_empty_attribute_value_constant>
+            </general>
+        </scheduled_import_export>
+    </default>
+</config>
