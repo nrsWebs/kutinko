@@ -1,0 +1,160 @@
+<div class="entry-edit form-inline">
+    <fieldset class="fieldset admin__fieldset " id="onlinedesign_main_base_fieldset">
+        <legend class="admin__legend legend">
+            <span><?php echo __("Design Information") ?></span>
+        </legend><br>
+    </fieldset>
+</div>
+
+<div data-ui-id="megamenu-edit-tab-image-fieldset-element-form-field-left-pgrid-box-title" class="admin__field field field-top_pgrid_products">
+    <!-- *** grid select product in checkbox *** -->
+    <div id="nb_order_design_infos">
+        <div id="topmenu_Grid">
+
+            <?php
+            $helper = $this->helper('Netbaseteam\Onlinedesign\Helper\Data');
+            $order_id     = $this->getRequest()->getParam('order_id');
+            $objectManagerr = \Magento\Framework\App\ObjectManager::getInstance();
+            $order = $objectManagerr->create('\Magento\Sales\Model\Order')->load($order_id);
+            $order->getAllVisibleItems();
+            $orderItems = $order->getItemsCollection()
+                ->addAttributeToSelect('*')
+                ->load();
+
+            ?>
+
+            <div class="fieldset " id="nbdesigner_order_info">
+                <div class="hor-scroll">
+                    <table class="form-list" cellspacing="0">
+                        <tbody>
+                        <?php
+                        $data_design = ""; $list = "";
+                        $product_id_arr = array();
+                        $fC = 1;
+
+                        foreach($orderItems as $sItem) {
+                            if($sItem->getNbdesignerJson() != null || $sItem->getNbdesignerJson() != ""){
+                                $data_design = $sItem->getNbdesignerJson();
+                                $list = json_decode($data_design);
+
+                                if(count($sItem->getChildrenItems())) {
+                                    foreach($sItem->getChildrenItems() as $item){
+                                        $pid = $item->getProductId();
+                                        $pname = $item->getName();
+                                    }
+                                }elseif($sItem->getParentItemId() == "" || $sItem->getParentItemId() == null){
+                                    $pid = $sItem->getProductId();
+                                    $pname = $sItem->getName();
+                                } else {
+                                    $order_item_col = $objectManagerr->create('\Magento\Sales\Model\Order\Item')->load($sItem->getParentItemId());
+                                    $pid = $order_item_col->getProductId();
+                                    $pname = $sItem->getName();
+                                }
+
+                                $action = $this->helper("Netbaseteam\Onlinedesign\Helper\Data")->getAction($order_id, $pid);
+                                ?>
+
+                                <tr <?php if($action == "decline") { echo 'style="background-color: #F3E8EE;"'; } else { echo 'style="background-color: #C3DBF0;"'; } ?> class="row-<?php echo $pid; ?>">
+                                    <div style="margin-bottom: 15px;">
+                                        <?php if(!in_array($pid, $product_id_arr)): ?>
+                                            <input class="nbdesigner_design_file" name="_nbdesigner_design_file[]" value="<?php echo $pid; ?>" type="checkbox">
+                                            <span><strong><?php echo __("Product Name: ".$pname); ?></strong></span>
+                                        <?php endif; ?>
+                                        <div>
+                                            <td class="label" style="width: 165px;"><?php echo "- File ".$fC.": "; ?></td>
+
+                                            <?php
+                                            foreach ($list as $img) {
+                                                /*$src = $helper->nbdesigner_create_secret_image_url($img);*/
+                                                $arr_img = explode("nbdesigner", $img);
+                                                $src = str_replace("thumbs/", "", $helper->getBaseUrl() . $arr_img[1]);
+                                                ?>
+                                                <td class="value" style = "width: auto;">
+                                                    <a download="<?php echo $src; ?>" href="<?php echo $src; ?>"></a><img style="border-radius: 3px; border: 1px solid #ddd; margin-top: 5px; margin-right: 5px; display: inline-block;" src="<?php echo $src; ?>"/></br />
+                                                </td>
+                                            <?php } ?>
+
+                                            <td style="padding: 27px;">
+										<span>
+										<?php
+                                        $view_url = $this->getUrl('onlinedesign/order/view',
+                                            array(
+                                                '_current' => true,
+                                                'id' => $pid,
+                                                'order_id' => $order_id,
+                                            )
+                                        );
+                                        ?>
+                                            <a href="<?php echo $view_url; ?>" target="_blank"><?php echo __('View detail') ?></a>
+										</span>
+                                            </td>
+                                </tr>
+                                <tr>
+                                    <td>&nbsp;</td>
+                                </tr>
+                                <?php
+                                $fC ++;
+                                $product_id_arr[] = $pid;
+                            }
+                        }
+                        ?>
+
+                        <?php if($list) { ?>
+
+                            <tr>
+                                <td><?php echo __('With selected') ?></td>
+                                <td>
+                                    <select name="nbdesigner_order_file_approve" class="" style="width: 100%;">
+                                        <option value="accept"><?php echo __('Accept') ?></option>
+                                        <option value="decline"><?php echo __('Decline') ?></option>
+                                    </select>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td></td>
+                                <td>
+                                    <a href="#" class="button button-primary nbdesigner_order_file_submit_button" id="nbdesigner_order_file_submit"><?php echo __('Go') ?></a>
+                                </td>
+                            </tr>
+
+                            <?php
+                            $download_url = $this->getUrl('onlinedesign/order/downloadall',
+                                array(
+                                    '_current'=>true,
+                                    'download-all'=>true,
+                                    'order_id'=> $order_id,
+                                )
+                            );
+                            ?>
+                            <tr>
+                                <td><?php echo __('Download All Design') ?></td>
+                                <td>
+                                    <a href="<?php echo $download_url; ?>" class="button button-primary nbdesigner_order_file_submit_button" id="nbdesigner_download"><?php echo __('Download') ?></a>
+                                </td>
+                            </tr>
+
+                        <?php } else {
+                            echo __("There are no any design in this order.");
+                        } ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <script type="text/javascript">
+                var admin_nbds = {
+                    reject_url 		: "<?php echo $this->getUrl('onlinedesign/order/reject', array('_current'=>true)); ?>",
+                };
+
+                require([
+                    'jquery',
+                    'general-order'
+                ], function ($) {
+
+                });
+            </script>
+
+        </div>
+    </div>
+</div>

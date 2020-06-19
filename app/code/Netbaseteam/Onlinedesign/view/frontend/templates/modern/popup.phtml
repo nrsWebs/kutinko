@@ -1,0 +1,30 @@
+<?php 
+    include 'popup-contents/share.phtml';
+    include 'popup-contents/webcam.phtml';
+?>
+<div class="nbd-popup popup-fileType" data-animate="bottom-to-top">
+    <div class="overlay-popup"></div>
+    <div class="main-popup">
+        <i class="icon-nbd icon-nbd-clear close-popup"></i>
+        <div class="head"></div>
+        <div class="body">
+            <div class="main-body"></div>
+        </div>
+        <div class="footer"></div>
+    </div>
+</div>
+<?php 
+    include 'popup-contents/hotkeys.phtml';
+    include 'popup-contents/upload-terms.phtml';
+    include 'popup-contents/confirm-delete-layers.phtml';
+    if( $task == 'create_template' ) {include 'popup-contents/global-template-category.phtml';};
+    if( $show_nbo_option && ($settings['nbdesigner_display_product_option'] == '1' || wp_is_mobile() ) ) include 'popup-contents/printing-options.phtml';
+    include 'popup-contents/crop-image.phtml';
+    include 'popup-contents/guidelines.phtml';
+    include 'popup-contents/user-design.phtml';
+    include 'popup-contents/my-templates.phtml';
+    include 'popup-contents/my-cart-designs.phtml';
+    if( $task == 'create' || ( $task == 'edit' && ( isset( $_GET['design_type'] ) && $_GET['design_type'] == 'template' ) ) ){
+        include 'popup-contents/template-tags.phtml';
+    }
+?>

@@ -1,0 +1,10 @@
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+    <event name="checkout_cart_product_add_after">
+        <observer
+            name="online_design_after_product_add_cart"
+            instance="Netbaseteam\Onlinedesign\Model\Observer\Gotocheckout" />
+    </event>
+    <event name="controller_action_predispatch">
+        <observer name="frontend_condition_onlinedesign" instance="Netbaseteam\Onlinedesign\Observer\CheckConditionObserver" />
+    </event>
+</config>

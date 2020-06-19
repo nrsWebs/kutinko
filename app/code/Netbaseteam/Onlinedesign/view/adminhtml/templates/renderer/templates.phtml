@@ -1,0 +1,19 @@
+<div class="entry-edit form-inline">
+	<fieldset class="fieldset admin__fieldset " id="onlinedesign_main_base_fieldset">
+		<legend class="admin__legend legend">
+			<span><?php echo __("Design Templates (please flush cache to refresh/show templates)") ?></span>
+		</legend><br>
+	</fieldset>
+</div>		
+			
+<div data-ui-id="megamenu-edit-tab-image-fieldset-element-form-field-left-pgrid-box-title" class="admin__field field field-top_pgrid_products">
+	<!-- *** grid select product in checkbox *** -->
+	<div id="nb_top_select_pids">
+		<div id="topmenu_Grid">
+		<?php
+		echo $this->getLayout()->createBlock('Netbaseteam\Onlinedesign\Block\Adminhtml\Onlinedesign\Edit\Tab\Templatelist')
+					->toHtml(); 
+		?>
+		</div>
+	</div>
+</div>

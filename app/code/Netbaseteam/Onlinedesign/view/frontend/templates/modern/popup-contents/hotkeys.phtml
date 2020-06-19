@@ -1,0 +1,357 @@
+<div class="nbd-popup popup-keyboard" data-animate="fixed-top">
+    <div class="overlay-popup"></div>
+    <div class="main-popup">
+        <i class="icon-nbd icon-nbd-clear close-popup"></i>
+        <div class="head">
+            <div class="nbd-tab-nav">
+                <ul class="nbd-tabs">
+                    <li class="nbd-tab active" data-tab="nbd-keyboard-shortcut">
+                        <span class="title"><?php echo __('Keyboard shortcuts'); ?></span>
+                    </li>
+                    <li class="nbd-tab" data-tab="nbd-keyboard-about">
+                        <span class="title"><?php echo __('About'); ?></span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="body">
+            <div class="main-body">
+                <div class="nbd-tab-contents">
+                    <div class="tab-scroll">
+                        <div id="nbd-keyboard-shortcut" class="nbd-tab-content active">
+                            <table class="keyboard-mapping">
+                                <tbody>
+                                <tr>
+                                    <td class="keys">
+                                        <kbd>Ctrl</kbd> +<kbd>A</kbd>
+                                    </td>
+                                    <td><?php echo __('Select all layers'); ?></td>
+                                </tr>
+                                <tr>
+                                    <td class="keys">
+                                        <kbd>Ctrl</kbd> +<kbd>D</kbd>
+                                    </td>
+                                    <td><?php echo __('Deselect all layers'); ?></td>
+                                </tr> 
+                                <tr>
+                                    <td class="keys">
+                                        <kbd>Ctrl</kbd> +<kbd>E</kbd>
+                                    </td>
+                                    <td><?php echo __('Clear all layers'); ?></td>
+                                </tr>  
+                                <tr>
+                                    <td class="keys">
+                                        <kbd>Ctrl</kbd> +<kbd>Z</kbd>
+                                    </td>
+                                    <td><?php echo __('Undo changes'); ?></td>
+                                </tr>
+                                <tr>
+                                    <td class="keys">
+                                        <kbd>Ctrl</kbd> +<kbd>Y</kbd>
+                                    </td>
+                                    <td><?php echo __('Redo changes'); ?></td>
+                                </tr>   
+                                <tr>
+                                    <td class="keys">
+                                        <kbd>Ctrl</kbd> +<kbd>L</kbd>
+                                    </td>
+                                    <td><?php echo __('Show/hide Bleed line'); ?></td>
+                                </tr> 
+                                <tr>
+                                    <td class="keys">
+                                        <kbd>Ctrl</kbd> +<kbd>R</kbd>
+                                    </td>
+                                    <td><?php echo __('Show/hide Ruler'); ?></td>
+                                </tr>
+                                <tr>
+                                    <td class="keys">
+                                        <kbd>Ctrl</kbd> +<kbd>H</kbd>
+                                    </td>
+                                    <td><?php echo __('Align layer horizontal center'); ?></td>
+                                </tr>   
+                                <tr>
+                                    <td class="keys">
+                                        <kbd>Ctrl</kbd> +<kbd>V</kbd>
+                                    </td>
+                                    <td><?php echo __('Align layer vertical center'); ?></td>
+                                </tr> 
+                                <tr>
+                                    <td class="keys">
+                                        <kbd>Ctrl</kbd> +<kbd>+</kbd>
+                                    </td>
+                                    <td><?php echo __('Zoom In stage'); ?></td>
+                                </tr>   
+                                <tr>
+                                    <td class="keys">
+                                        <kbd>Ctrl</kbd> +<kbd>-</kbd>
+                                    </td>
+                                    <td><?php echo __('Zoom Out stage'); ?></td>
+                                </tr>     
+                                <tr>
+                                    <td class="keys">
+                                        <kbd>Ctrl</kbd> +<kbd>0</kbd>
+                                    </td>
+                                    <td><?php echo __('Fit stage with viewport'); ?></td>
+                                </tr>   
+                                <tr>
+                                    <td class="keys">
+                                        <kbd>Ctrl</kbd> +<kbd>1</kbd>
+                                    </td>
+                                    <td><?php echo __('Resize stage to real size'); ?></td>
+                                </tr>  
+                                <tr>
+                                    <td class="keys">
+                                        <kbd>Ctrl</kbd> +<kbd>]</kbd>
+                                    </td>
+                                    <td><?php echo __('Bring layer forward'); ?></td>
+                                </tr>
+                                <tr>
+                                    <td class="keys">
+                                        <kbd>Ctrl</kbd> +<kbd>[</kbd>
+                                    </td>
+                                    <td><?php echo __('Bring layer backward'); ?></td>
+                                </tr>  
+                                <tr>
+                                    <td class="keys">
+                                        <kbd>Ctrl</kbd> +<kbd>O</kbd>
+                                    </td>
+                                    <td><?php echo __('Load your designs'); ?></td>
+                                </tr>  
+                                <tr>
+                                    <td class="keys">
+                                        <kbd>Ctrl</kbd> +<kbd>O</kbd>
+                                    </td>
+                                    <td><?php echo __('Load your designs'); ?></td>
+                                </tr>  
+                                <tr>
+                                    <td class="keys">
+                                        <kbd>Ctrl</kbd> +<kbd>B</kbd>
+                                    </td>
+                                    <td><?php echo __('Make your text bold'); ?></td>
+                                </tr> 
+                                <tr>
+                                    <td class="keys">
+                                        <kbd>Ctrl</kbd> +<kbd>I</kbd>
+                                    </td>
+                                    <td><?php echo __('Italicize your text'); ?></td>
+                                </tr> 
+                                <tr>
+                                    <td class="keys">
+                                        <kbd>Ctrl</kbd> +<kbd>G</kbd>
+                                    </td>
+                                    <td><?php echo __('Group layers'); ?></td>
+                                </tr>                                 
+                                <tr>
+                                    <td class="keys">
+                                        <kbd>Ctrl</kbd> +<kbd>P</kbd>
+                                    </td>
+                                    <td><?php echo __('Duplicate layers'); ?></td>
+                                </tr>  
+                                <tr>
+                                    <td class="keys">
+                                        <kbd>Alt</kbd> +<kbd>U</kbd>
+                                    </td>
+                                    <td><?php echo __('Make your text UPPERCASE'); ?></td>
+                                </tr>  
+                                <tr>
+                                    <td class="keys">
+                                        <kbd>Alt</kbd> +<kbd>L</kbd>
+                                    </td>
+                                    <td><?php echo __('Make your text lowercase'); ?></td>
+                                </tr>                                 
+                                <tr>
+                                    <td class="keys">
+                                        <kbd>Alt</kbd> +<kbd>←</kbd>
+                                    </td>
+                                    <td><?php echo __('Move the selected layers to left 1px'); ?></td>
+                                </tr> 
+                                <tr>
+                                    <td class="keys">
+                                        <kbd>Alt</kbd> +<kbd>→</kbd>
+                                    </td>
+                                    <td><?php echo __('Move the selected layers to right 1px'); ?></td>
+                                </tr>  
+                                <tr>
+                                    <td class="keys">
+                                        <kbd>Alt</kbd> +<kbd>↑</kbd>
+                                    </td>
+                                    <td><?php echo __('Move the selected layers to top 1px'); ?></td>
+                                </tr> 
+                                <tr>
+                                    <td class="keys">
+                                        <kbd>Alt</kbd> +<kbd>↓</kbd>
+                                    </td>
+                                    <td><?php echo __('Move the selected layers to bottom 1px'); ?></td>
+                                </tr>   
+                                <tr>
+                                    <td class="keys">
+                                        <kbd>Alt</kbd> +<kbd><i style="color: #404762" class="icon-nbd icon-nbd-arrows-v rotate-45"></i></kbd>
+                                    </td>
+                                    <td><?php echo __('Free transform'); ?></td>
+                                </tr>                                 
+                                <tr>
+                                    <td class="keys">
+                                        <kbd>Shift</kbd> +<kbd>+</kbd>
+                                    </td>
+                                    <td><?php echo __('Zoom out selected layers'); ?></td>
+                                </tr>    
+                                <tr>
+                                    <td class="keys">
+                                        <kbd>Shift</kbd> +<kbd>-</kbd>
+                                    </td>
+                                    <td><?php echo __('Zoom in selected layer'); ?></td>
+                                </tr>  
+                                <tr>
+                                    <td class="keys">
+                                        <kbd>Shift</kbd> +<kbd>G</kbd>
+                                    </td>
+                                    <td><?php echo __('Show/hide Grid'); ?></td>
+                                </tr>    
+                                <tr>
+                                    <td class="keys">
+                                        <kbd>Shift</kbd> +<kbd>L</kbd>
+                                    </td>
+                                    <td><?php echo __('Clear all guidelines'); ?></td>
+                                </tr>
+                                <tr>
+                                    <td class="keys">
+                                        <kbd>Shift</kbd> +<kbd><i style="color: #404762" class="icon-nbd icon-nbd-arrows-v rotate-45"></i></kbd>
+                                    </td>
+                                    <td><?php echo __('Centered scaling'); ?></td>
+                                </tr>                                
+                                <tr>
+                                    <td class="keys">
+                                        <kbd>←</kbd>
+                                    </td>
+                                    <td><?php echo __('Move the selected layers to left 10px'); ?></td>
+                                </tr> 
+                                <tr>
+                                    <td class="keys">
+                                        <kbd>→</kbd>
+                                    </td>
+                                    <td><?php echo __('Move the selected layers to right 10px'); ?></td>
+                                </tr>  
+                                <tr>
+                                    <td class="keys">
+                                        <kbd>↑</kbd>
+                                    </td>
+                                    <td><?php echo __('Move the selected layers to top 10px'); ?></td>
+                                </tr> 
+                                <tr>
+                                    <td class="keys">
+                                        <kbd>↓</kbd>
+                                    </td>
+                                    <td><?php echo __('Move the selected layers to bottom 10px'); ?></td>
+                                </tr> 
+                                <tr>
+                                    <td class="keys">
+                                        <kbd>Delete</kbd>
+                                    </td>
+                                    <td><?php echo __('Delete selected layers'); ?></td>
+                                </tr> 
+                                <tr>
+                                    <td class="keys">
+                                        <kbd>V</kbd>
+                                    </td>
+                                    <td><?php echo __('Disable drawing mode'); ?></td>
+                                </tr>     
+                                <tr>
+                                    <td class="keys">
+                                        <kbd>B</kbd>
+                                    </td>
+                                    <td><?php echo __('Enable drawing mode'); ?></td>
+                                </tr>
+                                <tr>
+                                    <td class="keys">
+                                        <kbd>Esc</kbd>
+                                    </td>
+                                    <td><?php echo __('Quit text editing'); ?></td>
+                                </tr>                                
+                                <tr>
+                                    <td class="keys">
+                                        <kbd>Ctrl</kbd> +<kbd>Shift</kbd> +<kbd>]</kbd>
+                                    </td>
+                                    <td><?php echo __('Bring layer to front'); ?></td>
+                                </tr> 
+                                <tr>
+                                    <td class="keys">
+                                        <kbd>Ctrl</kbd> +<kbd>Shift</kbd> +<kbd>[</kbd>
+                                    </td>
+                                    <td><?php echo __('Send layer to back'); ?></td>
+                                </tr>  
+                                <tr>
+                                    <td class="keys">
+                                        <kbd>Ctrl</kbd> +<kbd>Shift</kbd> +<kbd>I</kbd>
+                                    </td>
+                                    <td><?php echo __('Import Design'); ?></td>
+                                </tr>     
+                                <tr>
+                                    <td class="keys">
+                                        <kbd>Ctrl</kbd> +<kbd>Shift</kbd> +<kbd>E</kbd>
+                                    </td>
+                                    <td><?php echo __('Export Design'); ?></td>
+                                </tr>  
+                                <tr>
+                                    <td class="keys">
+                                        <kbd>Ctrl</kbd> +<kbd>Shift</kbd> +<kbd>S</kbd>
+                                    </td>
+                                    <td><?php echo __('Save Design for later'); ?></td>
+                                </tr>  
+                                <tr>
+                                    <td class="keys">
+                                        <kbd>Ctrl</kbd> +<kbd>Shift</kbd> +<kbd>O</kbd>
+                                    </td>
+                                    <td><?php echo __('Load Your Design in Cart'); ?></td>
+                                </tr>  
+                                <tr>
+                                    <td class="keys">
+                                        <kbd>Ctrl</kbd> +<kbd>Shift</kbd> +<kbd>G</kbd>
+                                    </td>
+                                    <td><?php echo __('Ungroup'); ?></td>
+                                </tr>                                 
+                                <tr>
+                                    <td class="keys">
+                                        <kbd>Ctrl</kbd> +<kbd>Shift</kbd> +<kbd>L</kbd>
+                                    </td>
+                                    <td><?php echo __('Clear all stages'); ?></td>
+                                </tr>  
+                                <tr>
+                                    <td class="keys">
+                                        <kbd>Ctrl</kbd> +<kbd>Shift</kbd> +<kbd>&lt;</kbd>
+                                    </td>
+                                    <td><?php echo __('Decreate font size'); ?></td>
+                                </tr>  
+                                <tr>
+                                    <td class="keys">
+                                        <kbd>Ctrl</kbd> +<kbd>Shift</kbd> +<kbd>&gt;</kbd>
+                                    </td>
+                                    <td><?php echo __('Increate font size'); ?></td>
+                                </tr>                                 
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="nbd-keyboard-about" class="nbd-tab-content">
+                            <div class="text-center" style="margin-bottom: 40px; margin-top: 20px">
+                                <?php if(!$without_logo): ?>
+                                <img src="<?php echo $logo_url;?>" alt="online design">
+                                <?php else: ?>
+                                <?php echo get_bloginfo( 'name' ); ?>
+                                <?php endif; ?>
+                            </div>
+                            <?php 
+                                $om = \Magento\Framework\App\ObjectManager::getInstance();
+                                $resource = $om->get('\Magento\Framework\Module\ResourceInterface');
+                            ?>
+                            <div class="copy-right">
+                                <p class="text-center">Copyright © <script>document.write(new Date().getFullYear())</script>. <?php echo get_bloginfo( 'name' ); ?></p>
+                                <p class="text-center">All Rights Reserved</p>
+                                <p class="text-center">Powered by <a href="https://cmsmart.net/magento-extensions/magento-premium-online-product-designer-extension" target="_blank">NBDesigner</a> version <?php echo $resource->getDbVersion('Netbaseteam_Onlinedesign')?></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer"></div>
+    </div>
+</div>

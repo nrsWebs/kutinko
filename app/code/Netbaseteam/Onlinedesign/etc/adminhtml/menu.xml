@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+    <menu>
+		<!-- 1 -->
+        <add id="Netbaseteam_Onlinedesign::onlinedesign" title="Onlinedesign" module="Netbaseteam_Onlinedesign" sortOrder="30" resource="Netbaseteam_Onlinedesign::onlinedesign"/>
+        
+		<add id="Netbaseteam_Onlinedesign::manage_designer"
+             title="Manage Designs"
+             module="Netbaseteam_Onlinedesign"
+             sortOrder="0"
+             resource="Magento_Backend::admin"
+             parent="Netbaseteam_Onlinedesign::onlinedesign"
+        />              
+			<add id="Netbaseteam_Onlinedesign::onlinedesign_order" title="Orders" module="Netbaseteam_Onlinedesign" sortOrder="0" parent="Netbaseteam_Onlinedesign::manage_designer" action="onlinedesign/order/" resource="Netbaseteam_Onlinedesign::onlinedesign_order"/>
+			<add id="Netbaseteam_Onlinedesign::onlinedesign_manage" title="Products" module="Netbaseteam_Onlinedesign" sortOrder="10" parent="Netbaseteam_Onlinedesign::manage_designer" action="onlinedesign/index/" resource="Netbaseteam_Onlinedesign::onlinedesign_manage"/>
+        
+		<!-- 2 -->
+		<add id="Netbaseteam_Onlinedesign::manage_art"
+             title="Manage Arts"
+             module="Netbaseteam_Onlinedesign"
+             sortOrder="10"
+             resource="Magento_Backend::admin"
+             parent="Netbaseteam_Onlinedesign::onlinedesign"
+        />
+		
+			<add id="Netbaseteam_Onlinedesign::catart_manage" title="Categories Art" module="Netbaseteam_Onlinedesign" sortOrder="10" parent="Netbaseteam_Onlinedesign::manage_art" action="onlinedesign/catart/" resource="Netbaseteam_Onlinedesign::catart_manage"/>
+			<add id="Netbaseteam_Onlinedesign::onlinedesign_art" title="Arts" module="Netbaseteam_Onlinedesign" sortOrder="10" parent="Netbaseteam_Onlinedesign::manage_art" action="onlinedesign/art/" resource="Netbaseteam_Onlinedesign::onlinedesign_art"/>
+
+		<!-- 3 -->
+		<add id="Netbaseteam_Onlinedesign::template_mapping"
+			 title="Manage Template Mapping"
+			 module="Netbaseteam_Onlinedesign"
+			 sortOrder="10"
+			 resource="Magento_Backend::admin"
+			 parent="Netbaseteam_Onlinedesign::onlinedesign"
+		/>
+		<add id="Netbaseteam_Onlinedesign::manage_template_mapping" title="Template Fields" module="Netbaseteam_Onlinedesign" sortOrder="10" parent="Netbaseteam_Onlinedesign::template_mapping" action="onlinedesign/mapping/" resource="Netbaseteam_Onlinedesign::manage_template_mapping"/>
+		<!-- 4 -->
+		<add id="Netbaseteam_Onlinedesign::manage_fonts"
+             title="Manage Fonts"
+             module="Netbaseteam_Onlinedesign"
+             sortOrder="20"
+             resource="Magento_Backend::admin"
+             parent="Netbaseteam_Onlinedesign::onlinedesign"
+        />
+			<add id="Netbaseteam_Onlinedesign::onlinedesign_catcustomfont" title="Categories Font" module="Netbaseteam_Onlinedesign" sortOrder="10" parent="Netbaseteam_Onlinedesign::manage_fonts" action="onlinedesign/catfont/" resource="Netbaseteam_Onlinedesign::onlinedesign_catcustomfont"/>
+			<add id="Netbaseteam_Onlinedesign::onlinedesign_customfont" title="Custom Font" module="Netbaseteam_Onlinedesign" sortOrder="10" parent="Netbaseteam_Onlinedesign::manage_fonts" action="onlinedesign/font/" resource="Netbaseteam_Onlinedesign::onlinedesign_customfont"/>
+			<add id="Netbaseteam_Onlinedesign::onlinedesign_googlefont" title="Google Font" module="Netbaseteam_Onlinedesign" sortOrder="10" parent="Netbaseteam_Onlinedesign::manage_fonts" action="onlinedesign/googlefont/" resource="Netbaseteam_Onlinedesign::onlinedesign_googlefont"/>
+        
+		<!-- 5 -->
+		<add id="Netbaseteam_Onlinedesign::manage_colors"
+             title="Manage Colors"
+             module="Netbaseteam_Onlinedesign"
+             sortOrder="50"
+             resource="Magento_Backend::admin"
+             parent="Netbaseteam_Onlinedesign::onlinedesign"
+        />
+		
+			<add id="Netbaseteam_Onlinedesign::onlinedesign_color" title="Colors" module="Netbaseteam_Onlinedesign" sortOrder="10" parent="Netbaseteam_Onlinedesign::manage_colors" action="onlinedesign/color/" resource="Netbaseteam_Onlinedesign::onlinedesign_color"/>
+		<!-- 6 -->
+		<add id="Netbaseteam_Onlinedesign::manage_settings"
+             title="Setttings"
+             module="Netbaseteam_Onlinedesign"
+             sortOrder="50"
+             resource="Magento_Backend::admin"
+             parent="Netbaseteam_Onlinedesign::onlinedesign"
+        />
+			<add id="Netbaseteam_Onlinedesign::config_onlinedesign" title="Configuration"
+				module="Netbaseteam_Onlinedesign" sortOrder="100" parent="Netbaseteam_Onlinedesign::manage_settings"
+				action="adminhtml/system_config/edit/section/onlinedesign"
+				resource="Netbaseteam_Onlinedesign::config_onlinedesign" />
+	</menu>
+</config>

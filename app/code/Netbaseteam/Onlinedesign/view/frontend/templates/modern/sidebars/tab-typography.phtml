@@ -1,0 +1,61 @@
+<div class="tab <?php if( $active_typos ) echo 'active'; ?> " ng-if="settings['nbdesigner_enable_text'] == 'yes'" id="tab-typography" nbd-scroll="scrollLoadMore(container, type)" data-container="#tab-typography" data-type="typography" data-offset="20">
+    <div class="tab-main tab-scroll">
+        <div class="typography-head">
+            <span class="text-guide" style="color: #4F5467; margin-bottom: 20px;display: block;"><?php echo __('Click to add text'); ?></span>
+            <div class="head-main">
+                <span class="text-heading" ng-click='addText("<?php echo __('Company Name'); ?>", "heading")' style="color: #4F5467; display: block; font-size: 42px; font-weight: 700"><?php echo __('Add heading'); ?></span>
+                <span class="text-sub-heading" ng-click="addText('<?php echo __('Subheading');?>', 'subheading')" style="display: block; font-size: 30px; font-weight: 500; color: #4F5467"><?php echo __('Add subheading');?></span>
+                <span ng-click="addText('<?php echo __('Add a little bit of body text'); ?>')" class="text-body" style="display: block;color: #4F5467; font-size: 16px;"><?php echo __('Add a little bit of body text'); ?></span>
+                <span ng-show="settings.nbdesigner_enable_curvedtext == 'yes'" ng-click="addCurvedText('<?php echo __('Curved text'); ?>')" class="text-body" style="display: block;color: #4F5467; font-size: 16px;"><?php echo __('Add curved text'); ?></span>
+            </div>
+        </div>
+<!--        <hr ng-show="isTemplateMode" style="border-top: 1px solid rgba(255,255,255,0.5);margin: 0 10px 20px;"/>
+        <div ng-show="isTemplateMode" class="user-infos" style="text-align: left; margin-bottom: 20px;">
+            <p style="margin-left: 7px;"><?php //echo __('Business card'); ?></p>
+            <button ng-repeat="(iIndex, info) in settings.user_infos" ng-click="addUserInfo(iIndex)" class="nbd-button">{{info.title}}</button>
+            <button ng-click="buildVcart()" class="nbd-button"><?php //echo __('Vcard'); ?></button>
+            <hr style="border-top: 1px solid rgba(255,255,255,0.5);margin: 0 10px 20px;"/>
+            <p style="margin-left: 7px;"><?php //echo __('Contact sheet'); ?></p>
+            
+            <div style="margin-left: 7px;">
+                <select ng-change="getUsersByCountryCode()" ng-model="currentCountryCode">
+                    <option value=""><?php //echo __('Choose contact:'); ?></option>
+                    <option value="VN">VN</option>
+                    <option value="US">US</option>
+                </select>
+                <div ng-repeat="i in [0,1,2,3,4,5,6,7]" ng-show="contacts.length > 0">
+                    <div><label style="margin-top: 10px; margin-bottom: 0;" for="contact-{{i}}"><?php //echo __('Contact:'); ?></label></div>
+                    <select id="contact-{{i}}" ng-model="_contacts[i]" ng-change="_changeContact(i)">
+                        <option value=""><?php //echo __('Choose contact:'); ?></option>
+                        <option ng-repeat="(contact_index, contact) in contacts" value="{{contact_index}}">{{contact.c_full_name}}</option>
+                    </select>
+                </div>
+                <div style="margin-top: 15px;"><button class="nbd-button" ng-click="updateTemplate()"><?php //echo __('Update'); ?></button></div>
+            </div>
+            
+            <button ng-if="index != 'contact' && index != 'currentContactIndex' && index != 'contactsheet' && index != 'first_con'" ng-repeat="(index, info) in settings.contact_sheets" ng-click="addContactSheet(index)" class="nbd-button">{{index}}</button>
+            <p style="margin-left: 7px;"><?php //echo __('Choose contact'); ?></p>
+            <select style="margin-left: 7px;" ng-model="settings.contact_sheets.first_con" ng-change="changeContact()">
+                <option ng-repeat="con in settings.contact_sheets.contactsheet" value="{{con}}">{{con}}</option>
+            </select>
+            <p style="margin-left: 7px;"><?php //echo __('Related Contacts'); ?></p>
+            <select convert-to-number style="margin-left: 7px;" ng-model="settings.contact_sheets.currentContactIndex">
+                <option ng-repeat="(conIndex, _con) in settings.contact_sheets.contact[settings.contact_sheets.first_con]" value="{{conIndex}}">{{_con.c_full_name}}</option>
+            </select><br />
+            <button ng-repeat="(cIndex, c) in settings.contact_sheet[settings.contact_sheets.currentContactIndex]" ng-click="addContactSheet('contact', cIndex)" class="nbd-button">{{cIndex}}: {{c}}</button>
+        </div>-->
+        <hr ng-if="settings.nbdesigner_hide_typo_section == 'no'" style="border-top: 1px solid rgba(255,255,255,0.5);margin: 0 10px 20px;"/>
+        <div ng-if="settings.nbdesigner_hide_typo_section == 'no'" class="typography-body">
+            <ul class="typography-items">
+                <li nbd-drag="typo.folder" type="typo" ng-click="insertTypography(typo)" class="typography-item" ng-repeat="typo in resource.typography.data | limitTo: resource.typography.filter.currentPage * resource.typography.filter.perPage" repeat-end="onEndRepeat('typography')">
+                    <img ng-src="{{generateTypoLink(typo)}}" alt="Typography" />
+                </li>
+            </ul>
+            <div class="loading-photo" style="width: 40px; height: 40px;">
+                <svg class="circular" viewBox="25 25 50 50">
+                    <circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="2" stroke-miterlimit="10"/>
+                </svg>
+            </div>                
+        </div>
+    </div>
+</div>

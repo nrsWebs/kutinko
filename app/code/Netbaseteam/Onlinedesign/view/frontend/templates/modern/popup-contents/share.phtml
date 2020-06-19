@@ -1,0 +1,33 @@
+<div class="nbd-popup popup-share" data-animate="scale">
+    <div class="overlay-popup"></div>
+    <div class="main-popup">
+        <div class="overlay-main active">
+            <div class="loaded">
+                <svg class="circular" viewBox="25 25 50 50" style="width: 40px;height: 40px;">
+                    <circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="2" stroke-miterlimit="10"/>
+                </svg>
+            </div>
+        </div>
+        <i class="icon-nbd icon-nbd-clear close-popup"></i>
+        <div class="head">
+            <h2><?php echo __('Share this design'); ?></h2>
+        </div>
+        <div class="body">
+            <div class="share-with">
+                <span><?php echo __('Share with'); ?>:</span>
+                <ul class="socials">
+                    <li ng-click="createShareLink('facebook', 'https://facebook.com/sharer/sharer.php?u=')" class="social facebook"><i class="icon-nbd icon-nbd-facebook-circle nbd-hover-shadow"></i></li>
+                    <li ng-click="createShareLink('twitter', 'https://twitter.com/share?url=')" class="social twitter"><i class="icon-nbd icon-nbd-twitter-circle nbd-hover-shadow"></i></li>
+                    <li ng-click="createShareLink('google', 'https://plus.google.com/share?url=')" class="social google-plus"><i class="icon-nbd icon-nbd-google-plus-circle nbd-hover-shadow"></i></li>
+                </ul>
+            </div>
+            <div class="share-content">
+                <textarea ng-change="updateShareLink()" placeholder="<?php echo __('Write a comment'); ?>" ng-model="resource.social.comment"></textarea>
+            </div>
+            <div class="share-btn">
+                <a href="{{resource.social.link}}" target="_blank" ng-class="resource.social.link != '' ? '' : 'nbd-disabled'" class="nbd-button nbd-hover-shadow"><?php echo __('Share now'); ?></a>
+            </div>
+        </div>
+        <div class="footer"></div>
+    </div>
+</div>

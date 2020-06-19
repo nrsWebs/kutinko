@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <onlinedesign>
+            <general>
+                <enabled>1</enabled>
+				<btn_name>Start Design</btn_name>
+				<unit>cm</unit>
+                <owner_email>sales@cmsmart.net</owner_email>
+            </general>
+			
+			<text_options>
+				<enable_add_text>1</enable_add_text>
+				<default_text>Add text here</default_text>
+				<default_color>#cc324b</default_color>
+				<default_font_size>6,8,10,12,14,16,18,21,24,28,32,36,42,48,56,64,72,80,88,96,104,120,144,288,576,1152</default_font_size>
+			</text_options>
+			
+			<clip_art>
+				<enable_clipart>1</enable_clipart>
+			</clip_art>
+			
+			<image_options>
+				<enable_add_image>1</enable_add_image>
+				<enable_upload_image>1</enable_upload_image>
+				<login_require>0</login_require>
+				<upload_min>0</upload_min>
+                <upload_max>5</upload_max>
+                <enable_image_url>1</enable_image_url>
+                <enable_capture_webcame>1</enable_capture_webcame>
+                <enable_facebook>1</enable_facebook>
+                <enable_gdriver>1</enable_gdriver>
+                <enable_pixabay>1</enable_pixabay>
+                <enable_unsplash>1</enable_unsplash>
+                <enable_instagram>1</enable_instagram>
+                <enable_dropbox>1</enable_dropbox>
+                <show_term>1</show_term>
+                <term_text>Your term</term_text>
+			</image_options>
+			
+			<free_draw>
+				<enable_free_draw>1</enable_free_draw>
+			</free_draw>
+			
+			<qr_code>
+				<enable_qrcode>1</enable_qrcode>
+				<qr_text>example.com</qr_text>
+			</qr_code>
+			
+			<color>
+				<show_all_color>1</show_all_color>
+			</color>
+
+			<product_option>
+				<show_in_editor>1</show_in_editor>
+				<display_type>2</display_type>
+			</product_option>
+        </onlinedesign>
+    </default>
+</config>

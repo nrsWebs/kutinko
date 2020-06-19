@@ -1,0 +1,1403 @@
+<?php
+$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+$helper = $objectManager->get('Netbaseteam\Onlinedesign\Helper\Data');
+include_once($helper->getLibOnlineDesign() . '/Onlinedesign/includes/mobiledetect.php');
+include_once($helper->getLibOnlineDesign() . '/Onlinedesign/includes/class.helper.php');
+include_once($helper->getLibOnlineDesign() . '/Onlinedesign/includes/class-util.php');
+?>
+
+<!--------------- modal_gallery popup when click Set Images -------------->
+
+<?php
+/* get default value for design */
+$helper = $this->helper('Netbaseteam\Onlinedesign\Helper\Data');
+$img_skin_path = $this->getViewFileUrl('Netbaseteam_Onlinedesign/images/default.png');
+$overlay = $this->getViewFileUrl('Netbaseteam_Onlinedesign/images/overlay.png');
+$product_id = $this->getRequest()->getParam('id');
+$formKey = $this->getRequest()->getParam('key');
+$path_url = $helper->getBaseUrl() . '/productimages/' . $product_id;
+$frontendUrl = $objectManager->get('\Magento\Framework\UrlInterface');
+
+$onlinedesignIds = $helper->_getOnlineDesignByProduct($product_id);
+$data = "";
+$dpi = 0;
+$enable = 0;
+$enable_upload_design = 0;
+$use_visual_design = 0;
+$setting_default = array(
+    array(
+        'orientation_name' => 'Side 1',
+        'img_src' => $img_skin_path,
+        'img_overlay' => $overlay,
+        'real_width' => 8,
+        'real_height' => 6,
+        'real_left' => 1,
+        'real_top' => 1,
+        'area_design_top' => 100,
+        'area_design_left' => 50,
+        'area_design_width' => 400,
+        'area_design_height' => 300,
+        'img_src_top' => 50,
+        'img_src_left' => 0,
+        'img_src_width' => 500,
+        'img_src_height' => 400,
+        'product_width' => 10,
+        'product_height' => 8,
+        'show_bleed' => 0,
+        'bleed_top_bottom' => 0.3,
+        'bleed_left_right' => 0.3,
+        'show_safe_zone' => 0,
+        'margin_top_bottom' => 0.3,
+        'margin_left_right' => 0.3,
+        'bg_type' => 'image',
+        'bg_color_value' => "#ffffff",
+        'show_overlay' => 0,
+        'include_overlay' => 1,
+        'area_design_type' => 1,
+        'version' => "",
+        'ratio' => 50,
+        'include_background' => 1
+    )
+);
+
+if (sizeof($onlinedesignIds)) {
+    foreach ($onlinedesignIds as $od) {
+        $data = $od->getContentDesign();
+        $dpi = $od->getDpi();
+        $enable = $od->getStatus();
+        $enable_upload_design = $od->getStatusUploadDesign();
+        $use_visual_design = $od->getUseVisualLayout();
+        $stringSerializeOption = $helper->serializeCorrector($od->getNbdesignerOption());
+        $option = unserialize($stringSerializeOption);
+        break;
+    }
+    $stringSerializeData = $helper->serializeCorrector($data);
+    $designer_setting = unserialize($stringSerializeData);
+} else {
+    $designer_setting = $setting_default;
+}
+if ($dpi == 0 || $dpi == "") $dpi = nbdesigner_get_option('nbdesigner_default_dpi');
+$config = $_objectManager->get('Netbaseteam\Onlinedesign\Helper\Config');
+$unit = $config->getUnit();
+$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+$resource = $objectManager->get('Magento\Framework\App\ResourceConnection');
+$readConnection = $resource->getConnection();
+$table_name = $resource->getTableName('nb_templates');
+$admin_template = $readConnection->fetchAll('SELECT folder, priority FROM ' . $table_name . ' WHERE product_id = ' . $product_id . '');
+$priority = 0;
+if (count($admin_template)) {
+    for ($i = 0; $i < count($admin_template); $i++) {
+        if ($admin_template[$i]["folder"] == "primary" && $admin_template[$i]["priority"] == "1") {
+            $priority = 1;
+            break;
+        }
+    }
+}
+
+$product = $objectManager->create("Magento\Catalog\Model\Product")->load($product_id);
+$link_admindesign = $frontendUrl->getBaseUrl() . 'onlinedesign/index/design';
+$link_admindesign .= "?product_id=" . $product_id;
+?>
+
+<!-- The Modal Image Product -->
+<div id="myModal" class="modal" title="">
+    <!-- Modal content -->
+    <div class="modal-content">
+        <div class="modal-title">
+            <span class="close">&times;</span>
+            <p><strong><?php echo __('Please select product image from list') ?></strong></p>
+        </div>
+        <div id="img_list_dsg">
+            <?php foreach ($product->getMediaGalleryImages() as $image) : ?>
+                <img width="100" height="100" src="<?php echo $image->getUrl(); ?>"
+                     alt="<?php echo $product->getName() ?>"/>
+            <?php endforeach; ?>
+        </div>
+
+        <!-- upload image file -->
+        <div class="rCol">
+            <p><strong><?php echo __('The images you have uploaded') ?></strong></p>
+            <div id="prv">
+                <?php
+                $path = $helper->getBaseDir() . '/productimages/' . $product_id;
+                if (file_exists($path) && $handle = opendir($path)) {
+                    while (false !== ($entry = readdir($handle))) {
+                        $files[] = $entry;
+                    }
+                    $images = $files;
+                    foreach ($images as $image) {
+                        $image_link = $path_url . '/' . $image;
+                        if (@getimagesize($image_link)) {
+                            ?>
+                            <img width="100" height="100" src="<?php echo $image_link; ?>">
+                            <!-- <a href="#" id="rmv_'+fcnt+'" onclick="return removeit('+fcnt+')" class="close-classic"></a></div><input type="hidden" id="name_'+fcnt+'" value="'+data+'">' -->
+                            <?php
+                        }
+                    }
+                    closedir($handle);
+                }
+                ?>
+            </div>
+            <br/>
+            <label><?php echo __('Upload Photo:') ?></label>
+            <input type="file" id="file" name='file' onChange=" return submitForm();"
+                   accept=".jpeg,.gif,.jpg,.png,.svg">
+            <input type="hidden" id="filecount" value='0'>
+            <p><?php echo __("Allow file type: .jpeg, .gif, .jpg, .png"); ?></p>
+        </div>
+    </div>
+</div>
+
+<script>
+    /* choose image */
+    var img_preview_dsg_show,
+        img_preview_dsg_hide,
+        pimage_hidden_img_src_width,
+        pimage_hidden_img_src_height,
+        ip_image_overlay,
+        image_overlay;
+
+    // Get the modal
+    var modal = document.getElementById('myModal');
+
+    // Get the <span> element that closes the modal
+    var span = document.getElementsByClassName("close")[0];
+
+    function openImagesPopup(btn, _title) {
+        var data_index = jQuery(btn).attr("data-index");
+        jQuery('#myModal').attr("title", _title);
+
+        if (_title == "img-area") {
+            img_preview_dsg_show = jQuery(btn).parents(':eq(4)').find('.nbdesigner-image-inner .designer_img_src')[data_index];
+            img_preview_dsg_hide = jQuery(btn).parents(':eq(4)').find('.hidden_img_src')[data_index];
+            pimage_hidden_img_src_width = jQuery(btn).parents(':eq(4)').find('.hidden_img_src_width')[data_index];
+            pimage_hidden_img_src_height = jQuery(btn).parents(':eq(4)').find('.hidden_img_src_height')[data_index];
+        } else {
+            /* console.log(jQuery(btn).parents()); */
+            /* for overlay image */
+            ip_image_overlay = jQuery(btn).parents(':eq(1)').find('.hidden_overlay_src');
+            image_overlay = jQuery(btn).parents(':eq(1)').find('.nbdesigner-image-overlay .img_overlay');
+            console.log(image_overlay);
+        }
+
+        modal.style.display = "block";
+
+        return;
+    }
+
+    // When the user clicks on <span> (x), close the modal
+    span.onclick = function () {
+        modal.style.display = "none";
+    }
+
+    // When the user clicks anywhere outside of the modal, close it
+    window.onclick = function (event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+
+    /* image list */
+
+    function changeImage(evt) {
+        // Get the image that was clicked.
+        var target = evt.target || evt.srcElement;
+        // Then get the src or get the class
+        if (target) {
+            var targetSrc = target.src;
+        } else {
+            var targetSrc = jQuery(evt).attr("src");
+        }
+        /* var targetSrc = target.src; */
+        var _title = jQuery('#myModal').attr("title");
+        if (_title == "img-area") {
+            jQuery(img_preview_dsg_show).attr("src", targetSrc);
+        }
+
+        jQuery.ajax({
+            url: "<?php echo $this->getUrl('onlinedesign/index/uploadexists', array('_current' => true)); ?>",
+            type: 'POST',
+            data: {
+                filename: targetSrc,
+            },
+            dataType: 'json',
+            success: function (res) {
+                if (res.url != "") {
+                    if (_title == "img-area") {
+                        jQuery(img_preview_dsg_show).attr("src", res.url);
+                        jQuery(img_preview_dsg_hide).attr("value", res.url);
+                    } else {
+                        jQuery(ip_image_overlay).val(res.url);
+                        jQuery(image_overlay).attr("src", res.url);
+                    }
+                    /* alert("Update The Image Successfully!"); */
+                }
+            }
+        });
+
+        modal.style.display = "none";
+    }
+
+    var months = document.getElementById("img_list_dsg");
+    months.addEventListener("click", changeImage, true);
+
+    var months2 = document.getElementById("prv");
+    months2.addEventListener("click", changeImage, true);
+</script>
+
+<!-- upload image file by ajax -->
+
+<script>
+    function submitForm() {
+        var fcnt = jQuery('#filecount').val();
+        var fname = jQuery('#filename').val();
+        var imgclean = jQuery('#file');
+        if (fcnt <= 5) {
+            data = new FormData();
+            var form_key = FORM_KEY;
+            data.append('form_key', form_key);
+            data.append('file', jQuery('#file')[0].files[0]);
+
+            //var imgname  =  jQuery('input[type=file]').val();
+            var size = jQuery('#file')[0].files[0].size;
+
+            /*var ext =  imgname.substr( (imgname.lastIndexOf('.') +1) );
+            if(ext=='jpg' || ext=='jpeg' || ext=='png' || ext=='gif' || ext=='PNG' || ext=='JPG' || ext=='JPEG') {*/
+            if (size <= 1000000) {
+                jQuery.ajax({
+                    url: "<?php echo $this->getUrl('onlinedesign/index/uploadmyimages', array('_current' => true)); ?>",
+                    type: "POST",
+                    data: data,
+                    enctype: 'multipart/form-data',
+                    processData: false,  // tell jQuery not to process the data
+                    contentType: false   // tell jQuery not to set contentType
+                }).done(function (data) {
+                    if (data != 'FILE_SIZE_ERROR' || data != 'FILE_TYPE_ERROR') {
+                        fcnt = parseInt(fcnt) + 1;
+                        jQuery('#filecount').val(fcnt);
+                        var img = '<img width="100" height="100" onClick = "changeImage(this); return false;" src="<?php echo $path_url; ?>/' + data["mes"] + '">';
+                        jQuery('#prv').append(img);
+
+                        if (fname !== '') {
+                            fname = fname + ',' + data["mes"];
+                        } else {
+                            fname = data["mes"];
+                        }
+                        jQuery('#filename').val(fname);
+                        imgclean.replaceWith(imgclean = imgclean.clone(true));
+                    } else {
+                        imgclean.replaceWith(imgclean = imgclean.clone(true));
+                        alert('SORRY SIZE AND TYPE ISSUE');
+                    }
+                });
+                return false;
+            } else {
+                imgclean.replaceWith(imgclean = imgclean.clone(true));//Its for reset the value of file type
+                alert('Sorry File size exceeding from 1 Mb');
+            }
+            /*} else {
+                imgclean.replaceWith( imgclean = imgclean.clone( true ) );
+                alert('Sorry Only you can upload JPEG|JPG|PNG|GIF file type ');
+            }*/
+        } else {
+            imgclean.replaceWith(imgclean = imgclean.clone(true));
+            alert('You Can not Upload more than 6 Photos');
+        }
+    }
+</script>
+
+<!------------- design area setting -------------->
+
+<?php //if (!defined('ABSPATH')) exit; // Exit if accessed directly  ?>
+<div id="nbdesigner-setting-container">
+    <?php //wp_nonce_field('nbdesigner_setting_box', 'nbdesigner_setting_box_nonce'); ?>
+    <div class="entry-edit form-inline">
+        <fieldset class="fieldset admin__fieldset " id="onlinedesign_main_base_fieldset">
+            <legend class="admin__legend legend">
+                <span><?php echo __('Set The Design Information') ?></span>
+            </legend>
+        </fieldset>
+    </div>
+
+    <div class="nbdesigner-left">
+        <input type="hidden" value="0" name="_nbdesigner_enable"/>
+        <input type="hidden" value="0" name="_nbdesigner_upload_design_enable"/>
+        <input type="hidden" value="<?php echo $this->getRequest()->getParam('id'); ?>" name="product_id"/>
+        <label for="_nbdesigner_enable" class="nbdesigner-setting-box-label"><?php echo __('Enable Design'); ?></label>
+        <input type="checkbox" value="1" name="_nbdesigner_enable" id="_nbdesigner_enable" <?php checked($enable); ?>
+               class="short"/>
+        <p id="nbdesigner_upload_design" class="<?php if (!$enable) echo 'nbdesigner-disable'; ?>">
+            <label for="_nbdesigner_upload_design_enable"
+                   class="nbdesigner-setting-box-label-upload"><?php echo __('Enable Upload Design'); ?></label>
+            <input type="checkbox" value="1" name="_nbdesigner_upload_design_enable"
+                   id="_nbdesigner_upload_design_enable" <?php checked($enable_upload_design); ?>
+                   class="nbdesigner-setting-box-label-upload"/>
+    </div>
+</div>
+<div class="nbdesigner-right add_more" style="display: none;">
+    <a class="button button-primary" onclick="NBDESIGNADMIN.addOrientation('com')"><?php echo __('Add More'); ?></a>
+    <a class="button button-primary"
+       onclick="NBDESIGNADMIN.collapseAll('com')"><?php echo __('Collapse All'); ?></a>
+</div>
+<div class="nbdesigner-clearfix"></div>
+<div id="nbdesigner_dpi_con" class="<?php if (!$enable) echo 'nbdesigner-disable'; ?>">
+    <label for="nbdesigner_dpi" class="nbdesigner-setting-box-label"><?php echo __('DPI'); ?></label>
+    <input name="_nbdesigner_dpi" id="nbdesigner_dpi" value="<?php echo $dpi; ?>" type="number" min="0" max="300"
+           style="width: 60px;" onchange="NBDESIGNADMIN.updateSolutionImage()">&nbsp;<small>
+        (<?php echo __('Dots Per Inch'); ?>)
+        <input name="_nbdesigner_option[_nbdesigner_dpi]" id="nbdesigner_dpi" value="<?php echo $dpi; ?>" type="hidden"
+               style="width: 60px;" onchange="NBDESIGNADMIN.updateSolutionImage()">&nbsp;<small>
+        </small>
+        <input name="_nbdesigner_option[dpi]" id="nbdesigner_dpi_dpi" value="<?php echo $dpi; ?>" type="hidden"
+               style="width: 60px;" onchange="NBDESIGNADMIN.updateSolutionImage()">&nbsp;<small>
+        </small>
+</div>
+<div id="nbdesigner-boxes" class="<?php if (!$enable) echo 'nbdesigner-disable'; ?>">
+    <?php $count = 0;
+    foreach ($designer_setting as $k => $v): ?>
+        <div class="nbdesigner-box-container">
+            <div class="nbdesigner-box">
+                <label class="nbdesigner-setting-box-label"><?php echo __('Name'); ?></label>
+                <div class="nbdesigner-setting-box-value">
+                    <input name="_designer_setting[<?php echo $k; ?>][orientation_name]"
+                           class="short orientation_name"
+                           value="<?php echo $v['orientation_name']; ?>" type="text" required/>
+                    <?php if ($k == 0): ?>
+                        <span class="nbd-helper"><?php echo __('(Click [?]'); ?> <span
+                                    class="dashicons dashicons-editor-help"></span><?php echo __('to know how to setting product design)'); ?></span>
+                    <?php endif; ?>
+                </div>
+                <div class="nbdesigner-right">
+                    <a class="button nbdesigner-collapse" onclick="NBDESIGNADMIN.collapseBox(this)"><span
+                                class="dashicons dashicons-arrow-up"></span><?php echo __('Less setting'); ?></a>
+                    <a class="button nbdesigner-delete delete_orientation" data-index="<?php echo $k; ?>"
+                       data-variation="com" onclick="NBDESIGNADMIN.deleteOrientation(this)">&times;</a>
+                </div>
+            </div>
+            <div class="nbdesigner-box nbdesigner-box-collapse" data-variation="com">
+                <div class="nbdesigner-image-box">
+                    <div class="nbdesigner-image-inner">
+                        <?php
+                        if ($v['product_width'] >= $v['product_height']) {
+                            $ratio = 500 / $v['product_width'];
+                            $style_width = 500;
+                            $style_height = round($v['product_height'] * $ratio);
+                            $style_left = 0;
+                            $style_top = round((500 - $style_height) / 2);
+                            $left = 0;
+                            $top = ($v['product_width'] - $v['product_height']) / 2;
+                        } else {
+                            $ratio = 500 / $v['product_height'];
+                            $style_height = 500;
+                            $style_width = round($v['product_width'] * $ratio);
+                            $style_top = 0;
+                            $style_left = round((500 - $style_width) / 2);
+                            $top = 0;
+                            $left = ( $v['product_height'] - $v['product_width']) / 2;
+                        }
+                        ?>
+                        <div class="nbdesigner-image-original <?php if ($v['bg_type'] == 'tran') echo "background-transparent"; ?>"
+                             style="width: <?php echo $style_width; ?>px;
+                                     height: <?php echo $style_height; ?>px;
+                                     left: <?php echo $style_left; ?>px;
+                                     top: <?php echo $style_top; ?>px;
+                             <?php if ($v['bg_type'] == 'color') echo 'background: ' . $v['bg_color_value'] ?>"
+                        >
+                            <img src="<?php echo $v['img_src']; ?>"
+                                <?php if ($v['bg_type'] != 'image') echo ' style="display: none;"' ?>
+                                 class="designer_img_src "
+                            />
+                        </div>
+                        <?php $overlay_style = 'none';
+                        if ($v['show_overlay']) $overlay_style = 'block'; ?>
+                        <div class="nbdesigner-image-overlay"
+                             style="width: <?php echo $v['area_design_width']; ?>px;
+                                     height: <?php echo $v['area_design_height']; ?>px;
+                                     left: <?php echo $v['area_design_left']; ?>px;
+                                     top: <?php echo $v['area_design_top']; ?>px;
+                                     display: <?php echo $overlay_style; ?>"
+                        >
+                            <img src="<?php echo $v['img_overlay']; ?>" class="img_overlay"/>
+                        </div>
+                        <div class="nbd-bleed <?php if (!$v['show_bleed']) echo 'nbdesigner-disable'; ?> "
+                             style="width: <?php echo round($ratio * ($v['real_width'] - 2 * $v['bleed_left_right'])) ?>px;
+                                     height: <?php echo round($ratio * ($v['real_height'] - 2 * $v['bleed_top_bottom'])) ?>px;
+                                     top: <?php echo round($ratio * ($top + $v['real_top'] + $v['bleed_top_bottom'])) ?>px;
+                                     left: <?php echo round($ratio * ($left + $v['real_left'] + $v['bleed_left_right'])) ?>px;">
+                        </div>
+                        <div class="nbd-safe-zone <?php if (!$v['show_safe_zone']) echo 'nbdesigner-disable'; ?>"
+                             style="width: <?php echo round($ratio * ($v['real_width'] - 2 * $v['bleed_left_right'] - 2 * $v['margin_left_right'])) ?>px;
+                                     height: <?php echo round($ratio * ($v['real_height'] - 2 * $v['bleed_top_bottom'] - 2 * $v['margin_top_bottom'])) ?>px;
+                                     top: <?php echo round($ratio * ($top + $v['real_top'] + $v['bleed_top_bottom'] + $v['margin_top_bottom'])) ?>px;
+                                     left: <?php echo round($ratio * ($left + $v['real_left'] + $v['bleed_left_right'] + $v['margin_left_right'])) ?>px;">
+                        </div>
+                        <div class="nbdesigner-area-design" id="nbdesigner-area-design-<?php echo $k; ?>"
+                             style="width: <?php echo $v['area_design_width'] . 'px'; ?>;
+                                     height: <?php echo $v['area_design_height'] . 'px'; ?>;
+                                     left: <?php echo $v['area_design_left'] . 'px'; ?>;
+                                     top: <?php echo $v['area_design_top'] . 'px'; ?>;"></div>
+                    </div>
+                    <input type="hidden" class="hidden_img_src" name="_designer_setting[<?php echo $k; ?>][img_src]"
+                           value="<?php echo $v['img_src']; ?>">
+                    <input type="hidden" class="hidden_img_src_top"
+                           name="_designer_setting[<?php echo $k; ?>][img_src_top]"
+                           value="<?php echo $v['img_src_top']; ?>">
+                    <input type="hidden" class="hidden_img_src_left"
+                           name="_designer_setting[<?php echo $k; ?>][img_src_left]"
+                           value="<?php echo $v['img_src_left']; ?>">
+                    <input type="hidden" class="hidden_img_src_width"
+                           name="_designer_setting[<?php echo $k; ?>][img_src_width]"
+                           value="<?php echo $v['img_src_width']; ?>">
+                    <input type="hidden" class="hidden_img_src_height"
+                           name="_designer_setting[<?php echo $k; ?>][img_src_height]"
+                           value="<?php echo $v['img_src_height']; ?>">
+                    <input type="hidden" class="hidden_overlay_src"
+                           name="_designer_setting[<?php echo $k; ?>][img_overlay]"
+                           value="<?php echo $v['img_overlay']; ?>">
+                    <input type="hidden" class="hidden_nbd_version"
+                           name="_designer_setting[<?php echo $k; ?>][version]"
+                           value="<?php echo $v['version']; ?>">
+                    <input type="hidden" class="hidden_nbd_ratio"
+                           name="_designer_setting[<?php echo $k; ?>][ratio]"
+                           value="<?php echo isset($v['ratio']) ? $v['ratio'] : 50; ?>">
+                    <input type="hidden" class="hidden_nbd_include_background"
+                           name="_designer_setting[<?php echo $k; ?>][include_background]"
+                           value="<?php echo isset($v['include_background']) ? $v['include_background'] : 1; ?>">
+                    <input type="hidden" class="hidden_nbd_include_overlay"
+                           name="_designer_setting[<?php echo $k; ?>][include_overlay]"
+                           value="<?php echo isset($v['include_overlay']) ? $v['include_overlay'] : 1; ?>">
+                    <input type="hidden" class="hidden_nbd_show_bleed"
+                           name="_designer_setting[<?php echo $k; ?>][show_bleed]"
+                           value="<?php echo isset($v['show_bleed']) ? $v['show_bleed'] : 0; ?>">
+                    <input type="hidden" class="hidden_nbd_bleed_top_bottom"
+                           name="_designer_setting[<?php echo $k; ?>][bleed_top_bottom]"
+                           value="<?php echo isset($v['bleed_top_bottom']) ? $v['bleed_top_bottom'] : 0.3; ?>">
+                    <input type="hidden" class="hidden_nbd_bleed_left_right"
+                           name="_designer_setting[<?php echo $k; ?>][bleed_left_right]"
+                           value="<?php echo isset($v['bleed_left_right']) ? $v['bleed_left_right'] : 0.3; ?>">
+                    <input type="hidden" class="hidden_nbd_show_safe_zone"
+                           name="_designer_setting[<?php echo $k; ?>][show_safe_zone]"
+                           value="<?php echo isset($v['show_safe_zone']) ? $v['show_safe_zone'] : 0; ?>">
+                    <input type="hidden" class="hidden_nbd_margin_top_bottom"
+                           name="_designer_setting[<?php echo $k; ?>][margin_top_bottom]"
+                           value="<?php echo isset($v['margin_top_bottom']) ? $v['margin_top_bottom'] : 0.3; ?>">
+                    <input type="hidden" class="hidden_nbd_margin_left_right"
+                           name="_designer_setting[<?php echo $k; ?>][margin_left_right]"
+                           value="<?php echo isset($v['margin_left_right']) ? $v['margin_left_right'] : 0.3; ?>">
+
+                    <div class="direction">
+                                <span class="button nbdesigner_move nbdesigner_move_left" data-index="<?php echo $k; ?>"
+                                      onclick="NBDESIGNADMIN.nbdesigner_move(this, 'left')" title="Move Left">←</span>
+                        <span class="button nbdesigner_move nbdesigner_move_right" data-index="<?php echo $k; ?>"
+                              onclick="NBDESIGNADMIN.nbdesigner_move(this, 'right')" title="Move Right">→</span>
+                        <span class="button nbdesigner_move nbdesigner_move_up" data-index="<?php echo $k; ?>"
+                              onclick="NBDESIGNADMIN.nbdesigner_move(this, 'up')" title="Move Up">↑</span>
+                        <span class="button nbdesigner_move nbdesigner_move_down" data-index="<?php echo $k; ?>"
+                              onclick="NBDESIGNADMIN.nbdesigner_move(this, 'down')" title="Move Down">↓</span>
+                        <span class="button nbdesigner_move nbdesigner_move_center" data-index="<?php echo $k; ?>"
+                              onclick="NBDESIGNADMIN.nbdesigner_move(this, 'center')" title="Align Center">½</span>
+                        <span class="button nbdesigner_move nbdesigner_move_center" style=""
+                              data-index="<?php echo $k; ?>" onclick="NBDESIGNADMIN.nbdesigner_move(this, 'fit')"
+                              title="Fit"><i class="fa fa-expand" aria-hidden="true"></i></span>
+                    </div>
+                    <div>
+                        <p>
+                            <label for="nbdesigner_bg_type"
+                                   class="nbdesigner-setting-box-label"><?php echo __('Background type'); ?></label>
+                            <label class="nbdesigner-lbl-setting"><input type="radio"
+                                                                         name="_designer_setting[<?php echo $k; ?>][bg_type]"
+                                                                         value="image"
+                                    <?php checked($v['bg_type'], 'image', true); ?> class="bg_type"
+                                                                         onclick="NBDESIGNADMIN.change_background_type(this)"/><?php echo __('Image'); ?>
+                            </label>
+                            <label class="nbdesigner-lbl-setting"><input type="radio"
+                                                                         name="_designer_setting[<?php echo $k; ?>][bg_type]"
+                                                                         value="color"
+                                    <?php checked($v['bg_type'], 'color', true); ?> class="bg_type"
+                                                                         onclick="NBDESIGNADMIN.change_background_type(this)"/><?php echo __('Color'); ?>
+                            </label>
+                            <label class="nbdesigner-lbl-setting"><input type="radio"
+                                                                         name="_designer_setting[<?php echo $k; ?>][bg_type]"
+                                                                         value="tran"
+                                    <?php checked($v['bg_type'], 'tran', true); ?> class="bg_type"
+                                                                         onclick="NBDESIGNADMIN.change_background_type(this)"/><?php echo __('Transparent'); ?>
+                            </label>
+                        </p>
+                    </div>
+                    <div class="nbdesigner_bg_image" <?php if ($v['bg_type'] != 'image') echo ' style="display: none;"' ?>>
+                        <a class="button nbdesigner-button nbdesigner-add-image"
+                           onclick="openImagesPopup(this, 'img-area'); /* NBDESIGNADMIN.loadImage(this) */"
+                           data-index="<?php echo $k; ?>"><?php echo __('Set image'); ?></a>
+                    </div>
+                    <div class="nbdesigner_bg_color" <?php if ($v['bg_type'] != 'color') echo ' style="display: none;"' ?>>
+                        <input type="text" name="_designer_setting[<?php echo $k; ?>][bg_color_value]"
+                               value="<?php echo $v['bg_color_value'] ?>" class="nbd-color-picker bg_color_value"
+                               onClick="setColor(this); return false;"/>
+                    </div>
+                    <div class="nbdesigner_overlay_box">
+                        <label class="nbdesigner-setting-box-label"><?php echo __('Overlay (overlay layer will obove other layers)'); ?></label>
+                        <input type="hidden" value="0" name="_designer_setting[<?php echo $k; ?>][show_overlay]"
+                               class="show_overlay"/>
+                        <input type="checkbox" value="1"
+                               name="_designer_setting[<?php echo $k; ?>][show_overlay]"
+                               id="_designer_setting[<?php echo $k; ?>][bg_type]" <?php checked($v['show_overlay']); ?>
+                               class="show_overlay" onchange="NBDESIGNADMIN.toggleShowOverlay(this)"/>
+                        <a class="button overlay-toggle"
+                           onclick="openImagesPopup(this, 'img-overlay'); /* NBDESIGNADMIN.loadImageOverlay(this) */"
+                           style="display: <?php if ($v['show_overlay']) {
+                               echo 'inline-block';
+                           } else {
+                               echo 'none';
+                           } ?>">
+                            <?php echo __('Set image'); ?>
+                        </a>
+                        <img style="display: <?php if ($v['show_overlay']) {
+                            echo 'inline-block';
+                        } else {
+                            echo 'none';
+                        } ?>"
+                             src="<?php if ($v['img_overlay'] != '') {
+                                 echo $v['img_overlay'];
+                             } else {
+                                 echo NBDESIGNER_PLUGIN_URL . 'assets/images/overlay.png';
+                             } ?>" class="img_overlay"/>
+                    </div>
+                </div>
+                <div class="nbdesigner-info-box">
+                    <?php if ($k == 0): ?>
+                        <p>
+                            <span style="background: #b8dce8; width: 15px; height: 15px; display: inline-block;"></span>&nbsp;<?php echo __('Product area'); ?>
+                            &nbsp;
+                            <span style="background: #dddacd; width: 15px; height: 15px; display: inline-block;"></span>&nbsp;<?php echo __('Design area'); ?>
+                            <br/>
+                            <span style="border:2px solid #f0c6f6; width: 11px; height: 11px; display: inline-block;"></span>&nbsp;<?php echo __('Bounding box'); ?>
+                            <small>
+                                (<?php echo __('product always align vertical/horizontal center bounding box'); ?>)
+                            </small>
+                        </p>
+                    <?php endif; ?>
+                    <p class="nbd-setting-section-title">
+                        <?php echo __('Product size'); ?>
+                        <?php if ($k == 0): ?>
+                            <span class="nbdesign-config-size-tooltip dashicons dashicons-editor-help nbd-helper">[?]
+                                            <span class="tooltiptext">
+                                                <?php
+                                                echo $this->getLayout()->createBlock('Magento\Framework\View\Element\Template')
+                                                    ->setTemplate('Netbaseteam_Onlinedesign::help/product_size.phtml')->toHtml();
+                                                ?>
+                                            </span>
+                                        </span>
+                        <?php endif; ?>
+                    </p>
+                    <div class="nbdesigner-info-box-inner notice-width nbd-has-notice">
+                        <label class="nbdesigner-setting-box-label"><?php echo __('Width'); ?><br/>
+                            <small>(W<sub>p</sub>)</small>
+                        </label>
+                        <div>
+                            <input type="number" step="any" min="0"
+                                   name="_designer_setting[<?php echo $k; ?>][product_width]"
+                                   value="<?php echo $v['product_width']; ?>" class="short product_width"
+                                   onchange="NBDESIGNADMIN.change_dimension_product(this, 'width')"> <?php echo $unit; ?>
+                        </div>
+                    </div>
+                    <div class="nbdesigner-info-box-inner notice-height nbd-has-notice">
+                        <label class="nbdesigner-setting-box-label"><?php echo __('Height'); ?><br/>
+                            <small>(H<sub>p</sub>)</small>
+                        </label>
+                        <div>
+                            <input type="number" step="any" min="0"
+                                   name="_designer_setting[<?php echo $k; ?>][product_height]"
+                                   value="<?php echo $v['product_height']; ?>" class="short product_height"
+                                   onchange="NBDESIGNADMIN.change_dimension_product(this, 'height')"> <?php echo $unit; ?>
+                        </div>
+                    </div>
+                    <p class="nbd-setting-section-title">
+                        <?php echo __('Design area size'); ?>
+                        <?php if ($k == 0): ?>
+                            <span class="nbdesign-config-realsize-tooltip dashicons dashicons-editor-help nbd-helper">[?]
+                                            <span class="tooltiptext">
+                                                <?php
+                                                echo $this->getLayout()->createBlock('Magento\Framework\View\Element\Template')
+                                                    ->setTemplate('Netbaseteam_Onlinedesign::help/design_area.phtml')->toHtml();
+                                                ?>
+                                            </span>
+                                        </span>
+                        <?php endif; ?>
+                    </p>
+                    <div class="nbdesigner-info-box-inner notice-width nbd-has-notice">
+                        <label class="nbdesigner-setting-box-label"><?php echo __('Width'); ?><br/>
+                            <small>(W<sub>d</sub>)</small>
+                        </label>
+                        <div>
+                            <input type="number" step="any" name="_designer_setting[<?php echo $k; ?>][real_width]"
+                                   value="<?php echo $v['real_width']; ?>" class="short real_width"
+                                   onchange="NBDESIGNADMIN.updateRelativePosition(this, 'width')"> <?php echo $unit; ?>
+                        </div>
+                    </div>
+                    <div class="nbdesigner-info-box-inner notice-height nbd-has-notice">
+                        <label class="nbdesigner-setting-box-label"><?php echo __('Height'); ?><br/>
+                            <small>(H<sub>d</sub>)</small>
+                        </label>
+                        <div>
+                            <input type="number" step="any" min="0"
+                                   name="_designer_setting[<?php echo $k; ?>][real_height]"
+                                   value="<?php echo $v['real_height']; ?>" class="short real_height"
+                                   onchange="NBDESIGNADMIN.updateRelativePosition(this, 'height')"> <?php echo $unit; ?>
+                        </div>
+                    </div>
+                    <div class="nbdesigner-info-box-inner notice-height nbd-has-notice">
+                        <label class="nbdesigner-setting-box-label"><?php echo __('Top'); ?><br/>
+                            <small>(T<sub>d</sub>)</small>
+                        </label>
+                        <div>
+                            <input type="number" step="any" min="0"
+                                   name="_designer_setting[<?php echo $k; ?>][real_top]"
+                                   value="<?php echo $v['real_top']; ?>" class="short real_top"
+                                   onchange="NBDESIGNADMIN.updateRelativePosition(this, 'top')"> <?php echo $unit; ?>
+                        </div>
+                    </div>
+                    <div class="nbdesigner-info-box-inner">
+                        <label class="nbdesigner-setting-box-label notice-width nbd-has-notice"><?php echo __('Left'); ?>
+                            <br/>
+                            <small>(L<sub>d</sub>)</small>
+                        </label>
+                        <div>
+                            <input type="number" step="any" min="0"
+                                   name="_designer_setting[<?php echo $k; ?>][real_left]"
+                                   value="<?php echo $v['real_left']; ?>" class="short real_left"
+                                   onchange="NBDESIGNADMIN.updateRelativePosition(this, 'left')"> <?php echo $unit; ?>
+                        </div>
+                    </div>
+                    <p class="nbd-setting-section-title">
+                        <?php echo __('Relative position'); ?>&nbsp;
+                        <?php if ($k == 0): ?>
+                            <span class="nbdesign-config-tooltip dashicons dashicons-editor-help nbd-helper">[?]
+                                        <span class="tooltiptext">
+                                            <?php
+                                            echo $this->getLayout()->createBlock('Magento\Framework\View\Element\Template')
+                                                ->setTemplate('Netbaseteam_Onlinedesign::help/relative_position.phtml')->toHtml();
+                                            ?>
+                                        </span>
+                                    </span>
+                        <?php endif; ?>
+                        <span class="dashicons dashicons-update nbdesiger-update-area-design"
+                              onclick="NBDESIGNADMIN.updateDesignAreaSize(this)" title="Update Area Size"><i
+                                    class="fa fa-refresh" aria-hidden="true"></i></span>
+                    </p>
+                    <div class="nbdesigner-info-box-inner">
+                        <label class="nbdesigner-setting-box-label"><?php echo __('Width'); ?></label>
+                        <div>
+                            <input type="number" step="any" min="0"
+                                   name="_designer_setting[<?php echo $k; ?>][area_design_width]"
+                                   value="<?php echo $v['area_design_width']; ?>"
+                                   class="short area_design_dimension area_design_width" data-index="width"
+                                   onchange="NBDESIGNADMIN.updatePositionDesignArea(this)">&nbsp;px
+                        </div>
+                    </div>
+                    <div class="nbdesigner-info-box-inner">
+                        <label class="nbdesigner-setting-box-label"><?php echo __('Height'); ?></label>
+                        <div>
+                            <input type="number" step="any" min="0"
+                                   name="_designer_setting[<?php echo $k; ?>][area_design_height]"
+                                   value="<?php echo $v['area_design_height']; ?>"
+                                   class="short area_design_dimension area_design_height" data-index="height"
+                                   onchange="NBDESIGNADMIN.updatePositionDesignArea(this)">&nbsp;px
+                        </div>
+                    </div>
+                    <div class="nbdesigner-info-box-inner">
+                        <label class="nbdesigner-setting-box-label"><?php echo __('Left'); ?></label>
+                        <div>
+                            <input type="number" step="any" min="0"
+                                   name="_designer_setting[<?php echo $k; ?>][area_design_left]"
+                                   value="<?php echo $v['area_design_left']; ?>"
+                                   class="short area_design_dimension area_design_left" data-index="left"
+                                   onchange="NBDESIGNADMIN.updatePositionDesignArea(this)">&nbsp;px
+                        </div>
+                    </div>
+                    <div class="nbdesigner-info-box-inner">
+                        <label class="nbdesigner-setting-box-label"><?php echo __('Top'); ?></label>
+                        <div>
+                            <input type="number" step="any" min="0"
+                                   name="_designer_setting[<?php echo $k; ?>][area_design_top]"
+                                   value="<?php echo $v['area_design_top']; ?>"
+                                   class="short area_design_dimension area_design_top" data-index="top"
+                                   onchange="NBDESIGNADMIN.updatePositionDesignArea(this)">&nbsp;px
+
+                        </div>
+                    </div>
+                    <div class="nbdesigner-info-box-inner">
+                        <label class="nbdesigner-setting-box-label"><?php echo __('Show bleed'); ?> <span
+                                    class="nbd-bleed-notation"></span></label>
+                        <div>
+                            <input type="hidden" value="0" class="show_bleed"
+                                   name="_designer_setting[<?php echo $k; ?>][show_bleed]"/>
+                            <input type="checkbox" value="1" class="show_bleed"
+                                   name="_designer_setting[<?php echo $k; ?>][show_bleed]" <?php checked($v['show_bleed']); ?>
+                                   class="short nbd-dependence" data-target="#nbd-bleed<?php echo $k ?>"
+                                   onchange="NBDESIGNADMIN.toggleBleed(this)"/>
+                        </div>
+                    </div>
+                    <div id="nbd-bleed<?php echo $k ?>"
+                         class="nbd-bleed-con <?php if (!$v['show_bleed']) echo 'nbdesigner-disable'; ?> nbd-independence">
+                        <div class="nbdesigner-info-box-inner">
+                            <label class="nbdesigner-setting-box-label"><?php echo __('Bleed top-bottom'); ?></label>
+                            <div>
+                                <input type="number" step="any" min="0"
+                                       name="_designer_setting[<?php echo $k; ?>][bleed_top_bottom]"
+                                       value="<?php echo $v['bleed_top_bottom']; ?>" class="short bleed_top_bottom"
+                                       onchange="NBDESIGNADMIN.updateBleed(this)">
+                            </div>
+                        </div>
+                        <div class="nbdesigner-info-box-inner">
+                            <label class="nbdesigner-setting-box-label"><?php echo __('Bleed left-right'); ?></label>
+                            <div>
+                                <input type="number" step="any" min="0"
+                                       name="_designer_setting[<?php echo $k; ?>][bleed_left_right]"
+                                       value="<?php echo $v['bleed_left_right']; ?>" class="short bleed_left_right"
+                                       onchange="NBDESIGNADMIN.updateBleed(this)">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="nbdesigner-info-box-inner">
+                        <label class="nbdesigner-setting-box-label"><?php echo __('Show safe zone'); ?> <span
+                                    class="nbd-safe-zone-notation"></span></label>
+                        <div>
+                            <input type="hidden" value="0" class="show_safe_zone"
+                                   name="_designer_setting[<?php echo $k; ?>][show_safe_zone]"/>
+                            <input type="checkbox" value="1" class="show_safe_zone"
+                                   name="_designer_setting[<?php echo $k; ?>][show_safe_zone]" <?php checked($v['show_safe_zone']); ?>
+                                   class="short nbd-dependence" data-target="#nbd-safe-zone<?php echo $k ?>"
+                                   onchange="NBDESIGNADMIN.toggleSafeZone(this)"/>
+                        </div>
+                    </div>
+                    <div id="nbd-safe-zone<?php echo $k ?>"
+                         class="nbd-safe-zone-con <?php if (!$v['show_safe_zone']) echo 'nbdesigner-disable'; ?> nbd-independence">
+                        <div class="nbdesigner-info-box-inner">
+                            <label class="nbdesigner-setting-box-label"><?php echo __('Magin top-bottom'); ?></label>
+                            <div>
+                                <input type="number" step="any" min="0"
+                                       name="_designer_setting[<?php echo $k; ?>][margin_top_bottom]"
+                                       value="<?php echo $v['margin_top_bottom']; ?>" class="short  margin_top_bottom"
+                                       onchange="NBDESIGNADMIN.updateSafeZone(this)">
+                            </div>
+                        </div>
+                        <div class="nbdesigner-info-box-inner">
+                            <label class="nbdesigner-setting-box-label"><?php echo __('Magin left-right'); ?></label>
+                            <div>
+                                <input type="number" step="any" min="0"
+                                       name="_designer_setting[<?php echo $k; ?>][margin_left_right]"
+                                       value="<?php echo $v['margin_left_right']; ?>" class="short  margin_left_right"
+                                       onchange="NBDESIGNADMIN.updateSafeZone(this)">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <?php $count++;
+    endforeach; ?>
+    <input type="hidden" value="<?php echo $count; ?>" id="nbdesigner-count-box"/>
+</div>
+<div id="nbdesigner-option" class="nbdesigner-option <?php if (!$enable) echo 'nbdesigner-disable'; ?>">
+    <div class="nbdesigner-opt-inner">
+        <p class="visual-layout">
+            <label class="nbdesigner-option-label"><?php echo __('Use Visual Design (Default is Mordern)'); ?></label>
+            <input type="hidden" value="0" name="nbd_layout_visual"/>
+            <input name="nbd_layout_visual" id="nbd_layout_visual" value="1"
+                   type="checkbox" <?php checked($use_visual_design) ?>/>
+        </p>
+        <label for="_nbdesigner_admindesign"
+               class="nbdesigner-setting-box-label"><?php echo __('Admin design template'); ?></label>
+        <input type="checkbox" value="1" name="_nbdesigner_option[admindesign]"
+               id="_nbdesigner_admindesign" <?php checked(isset($option['admindesign']) ? $option['admindesign'] : false); ?>
+               class="short"/>
+        <?php if ($enable && isset($option['admindesign'])): ?>
+            <a class="button nbd-admin-tem-link"
+               href="<?php echo $link_admindesign . '&task=create&rd=admin_templates&key=' . $formKey; ?>"
+               target="_blank">
+                <span class="dashicons dashicons-art"></span>
+                <?php echo __('Create Template'); ?>
+            </a>
+        <?php else: ?>
+            <small><?php echo __('After save product, you\'ll see link to start design templates'); ?></small>
+        <?php endif; ?>
+    </div>
+    <div class="nbdesigner-opt-inner use_global_template">
+        <label for="_nbdesigner_global_template"
+               class="nbdesigner-setting-box-label"><?php echo __('Use Global Template'); ?></label>
+        <input type="checkbox" value="1" name="_nbdesigner_option[global_template]"
+               id="_nbdesigner_global_template" <?php checked(isset($option['global_template']) ? $option['global_template'] : false); ?>
+               class="short"/>
+
+        <?php
+        $cats = nbd_get_global_template_cat();
+        ?>
+        <div id="nbd-global-template-cat" class="nbdesigner-opt-inner nbd-independence ">
+            <label for="_nbdesigner_option[global_template_cat]" class="nbdesigner-option-label">Template type</label>
+            <select name="_nbdesigner_option[global_template_cat]">
+                <?php foreach ($cats as $cat): ?>
+                    <option value="<?= $cat->id ?>" <?php echo isset($option['global_template_cat']) && $option['global_template_cat'] == $cat->id ? 'selected="selected"' : '' ?> ><?= $cat->name ?></option>
+                <?php endforeach; ?>
+            </select>
+            <a target="_blank"
+               href="https://studio.cmsmart.net/index.php?option=com_nbmedia&amp;view=media&amp;cat=template">View list
+                template</a>
+        </div>
+    </div>
+    <div class="nbdesigner-opt-inner" style="display: none;">
+        <label for="_nbdesigner_customprice"
+               class="nbdesigner-setting-box-label"><?php echo __('Custom price'); ?></label>
+        <input type="number" step="any" class="short nbdesigner-short-input" id="_nbdesigner_customprice"
+               name="_nbdesigner_option[customprice]"
+               value="<?php if (isset($option['customprice'])) echo $option['customprice']; ?>"/>
+    </div>
+</div>
+</div>
+<?php
+function add_js_code()
+{
+    ?>
+    <script>
+        require([
+            'jquery',
+            'jquery/ui',
+            'admin_nbdesigner',
+            'sweetalert'
+        ], function ($) {
+
+            var $ = jQuery.noConflict();
+            jQuery.noConflict();
+
+            jQuery(document).ready(function ($) {
+                alert("abc");
+                var direction = "<?php if (is_rtl()) echo 'right'; else echo 'left'; ?>";
+                var options = {
+                    "content": "<h3>" + "<?php echo __('Notice'); ?>" + "<\/h3>" +
+                        "<p>" + "<?php echo __('Bellow values must in range from 0 to 500px'); ?>" + "<\/p>" +
+                        "<p>" + "<?php echo __('There are relative position of design area in bounding box.'); ?>" + "<\/p>" +
+                        "<p><img style='max-width: 100%;' src='" + "<?php echo NBDESIGNER_PLUGIN_URL . 'assets/images/bounding-box.png'; ?>" + "' /><br /><a href='" + "<?php echo NBDESIGNER_PLUGIN_URL . 'assets/images/bounding-box.png'; ?>" + "' target='_blank'>" + "<?php echo __('See detail'); ?>" + "</a></p>",
+                    "position": {"edge": direction, "align": "center"}
+                };
+                if (!options) return;
+                options = $.extend(options, {
+                    close: function () {
+                        //to do
+                    }
+                });
+                $('.nbdesign-config-tooltip').first().pointer(options);
+                $('.nbdesign-config-tooltip').first().on('click', function () {
+                    $(this).pointer("open")
+                });
+                var size_options = {
+                    "content": "<h3>" + "<?php echo __('Notice'); ?>" + "<\/h3>" +
+                        "<p>" + "<?php echo __('Please upload background image with aspect ratio'); ?>" + ": W<sub>p</sub>&timesH<sub>p</sub>.</p>" +
+                        "<p>" + "<?php echo __('Make sure setting'); ?>" + " <span style='font-weight: bold; background: #b8dce8;'>" + "<?php echo __('Product size'); ?>" + "</span> " + "<?php echo __('must always be the top priority!'); ?>" + "</p>" +
+                        "<p>" + "<?php echo __('You have two order setting options'); ?>" +
+                        ": <br /><strong>1</strong> - <span style='font-weight: bold; background: #b8dce8;'>" + "<?php echo __('Product size'); ?>" + "</span> →" +
+                        " <span style='font-weight: bold; background: #dddacd;'>" + "<?php echo __('Design area size'); ?>" + "</span> " +
+                        " (<span style='font-weight: bold; background: #f0c6f6;'>" + "<?php echo __('Relative position'); ?>" + "</span> " + "<?php echo __('will automatic update'); ?>" + ")" +
+                        "<br /><strong>2</strong> - <span style='font-weight: bold; background: #b8dce8;'>" + "<?php echo __('Product size'); ?>" + "</span> →" +
+                        " <span style='font-weight: bold; background: #f0c6f6;'>" + "<?php echo __('Relative position'); ?>" + "</span> → " +
+                        "<?php echo __('click'); ?>" + "<span class='dashicons dashicons-update'></span> " + "<?php echo __('to update'); ?>" + " <span style='font-weight: bold; background: #f0c6f6;'>" + "<?php echo __('Design area size'); ?>" + "</span>" +
+                        "</p>",
+                    "position": {"edge": direction, "align": "center"}
+                };
+                $('.nbdesign-config-size-tooltip').first().pointer(size_options);
+                $('.nbdesign-config-size-tooltip').first().on('click', function () {
+                    $(this).pointer("open")
+                });
+                var da_option = {
+                    "content": "<h3>" + "<?php echo __('Notice'); ?>" + "<\/h3>" +
+                        "<p>" + "<?php echo __('After change bellow'); ?>" + " <span style='background: #dddacd; font-weight: bold;'>" + "<?php echo __('values'); ?>" + "</span>, " + "<span style='background: #f0c6f6; font-weight: bold;'>" + "<?php echo __('relative position'); ?>" + "</span> " + "<?php echo __('of design area in bounding box will automatic update.'); ?>" + "</p>" +
+                        "<p>" + "<?php echo __('Notice'); ?>" + ": W<sub>p</sub> &gt;= W<sub>d</sub> + L<sub>d</sub>" +
+                        " | H<sub>p</sub> &gt;= H<sub>d</sub> + T<sub>d</sub>" +
+                        "<br />" + "<?php echo __('If color labels change to '); ?>" + "<span style='color: red'>" + "<?php echo __('red'); ?>" + "</span>, " + "<?php echo __('check values again.'); ?>" + "</p>" +
+                        "<p>" + "<?php echo __('There'); ?>" + " <span style='background: #dddacd; font-weight: bold;'>" + "<?php echo __('values'); ?>" + "</span> " + "<?php echo __('will decide dimensions of output images.'); ?>" + "</p>" +
+                        "<p>" + "<?php echo __('If you modify'); ?>" + " <span style='background: #f0c6f6; font-weight: bold;'>" + "<?php echo __('relative position'); ?>" + "</span>, " + "<?php echo __('click button'); ?>" + " <span class='dashicons dashicons-update'></span> " + "<?php echo __('to update'); ?>" + "<span style='background: #dddacd; font-weight: bold;'> " + "<?php echo __('Design area.'); ?>" + "</span>" + "</p>",
+                    "position": {"edge": direction, "align": "center"}
+                };
+                $('.nbdesign-config-realsize-tooltip').first().pointer(da_option);
+                $('.nbdesign-config-realsize-tooltip').first().on('click', function () {
+                    $(this).pointer("open")
+                });
+            });
+
+        });
+
+    </script>
+    <?php
+}
+
+?>
+
+<script>
+    var NBD_STAGE = {
+        'width': 500,
+        'height': 500
+    };
+    var NBDESIGNADMIN = {
+        addOrientation: function (command) {
+            var _command = command;
+            if (command == 'com') _command = '';
+            var id = '#nbdesigner-boxes' + _command;
+            var old_box = jQuery(id + ' .nbdesigner-box-container').last();
+            if (old_box.css('display') == 'none') {
+                old_box.show();
+            } else {
+                var checked = old_box.find('.bg_type:checked').val();
+                var new_box = old_box.clone();
+                new_box.appendTo(id);
+                jQuery(new_box).find('.bg_type').each(function (index, attr) {
+                    jQuery(this).attr('name', 'bg_type_clone');
+                });
+                jQuery(old_box).find('.bg_type[value="' + checked + '"]').prop('checked', true);
+                jQuery(new_box).find('.bg_type[value="' + checked + '"]').prop('checked', true);
+                new_box.find('.ui-resizable-handle').remove();
+                new_box.find('.nbd-helper').remove();
+                new_box.find('.nbdesigner_bg_color').html("");
+                new_box.find('.nbdesigner_bg_color').append('<input type="text" name="_designer_setting[0][bg_color_value]" value="#ffffff" class="nbd-color-picker" onClick="setColor(this); return false;" />');
+                this.resetBoxes(command);
+                if (checked == "color") old_box.find('.bg_type:checked').trigger("click");
+            }
+            ;
+            jQuery(window).scrollTop(parseInt(jQuery(".nbdesigner-box-container").last().offset().top));
+        },
+        collapseAll: function (command) {
+            if (command == 'com') command = '';
+            var id = '#nbdesigner-boxes' + command;
+            jQuery.each(jQuery(id + ' .nbdesigner-collapse'), function () {
+                var self = jQuery(this),
+                    toggle_element = self.parents('.nbdesigner-box-container').find('.nbdesigner-box-collapse');
+                if (toggle_element.is(':visible')) {
+                    self.html('<span class="dashicons dashicons-arrow-down"></span> More setting');
+                    toggle_element.slideToggle();
+                }
+            });
+            return false;
+        },
+        updateSolutionImage: function () {
+            var dpi = jQuery('#nbdesigner_dpi').val();
+            if (dpi < 1) dpi = 1;
+            jQuery.each(jQuery('#nbdesigner-boxes .nbdesigner-box-container, .nbdesigner-variation-setting .nbdesigner-box-container'), function (key, val) {
+                var width = jQuery(this).find('.real_width_hidden').html(),
+                    height = jQuery(this).find('.real_height_hidden').html();
+                jQuery(this).find('.real_width_px').html(parseInt(width * dpi / 2.54));
+                jQuery(this).find('.real_height_px').html(parseInt(height * dpi / 2.54));
+            });
+            jQuery('#nbdesigner_dpi').val(dpi);
+        },
+        collapseBox: function (e) {
+            var clicked_element = jQuery(e);
+            var toggle_element = jQuery(e).parents('.nbdesigner-box-container').find('.nbdesigner-box-collapse');
+            toggle_element.slideToggle(function () {
+                if (toggle_element.is(':visible')) {
+                    clicked_element.html('<span class="dashicons dashicons-arrow-up"></span> Less setting');
+                } else {
+                    clicked_element.html('<span class="dashicons dashicons-arrow-down"></span> More setting');
+                }
+            });
+        },
+        deleteOrientation: function (e) {
+            var variantion = jQuery(e).data('variation');
+            if ((jQuery('.nbdesigner-box-container').length) > 1) {
+                jQuery(e).parents('.nbdesigner-box-container').remove();
+                this.resetBoxes(variantion);
+            } else {
+                jQuery(e).parents('.nbdesigner-box-container').hide();
+            }
+            ;
+        },
+        nbdesigner_move: function (e, command) {
+            var parent = jQuery(e).parents('.nbdesigner-box-collapse'),
+                area = parent.find('.nbdesigner-area-design'),
+                overlay = parent.find('.nbdesigner-image-overlay'),
+                left = area.css('left'),
+                top = area.css('top'),
+                w = area.width(),
+                h = area.height(),
+                ip_left = parent.find('.area_design_left'),
+                ip_top = parent.find('.area_design_top'),
+                ip_width = parent.find('.area_design_width'),
+                ip_height = parent.find('.area_design_height');
+
+            switch (command) {
+                case 'left':
+                    area.css('left', parseFloat(left) - 1);
+                    overlay.css('left', parseFloat(left) - 1);
+                    ip_left.val(parseFloat(left) - 1);
+                    break;
+                case 'right':
+                    area.css('left', parseFloat(left) + 1);
+                    overlay.css('left', parseFloat(left) + 1);
+                    ip_left.val(parseFloat(left) + 1);
+                    break;
+                case 'down':
+                    area.css('top', parseFloat(top) + 1);
+                    overlay.css('top', parseFloat(top) + 1);
+                    ip_top.val(parseFloat(top) + 1);
+                    break;
+                case 'up':
+                    area.css('top', parseFloat(top) - 1);
+                    overlay.css('top', parseFloat(top) - 1);
+                    ip_top.val(parseFloat(top) - 1);
+                    break;
+                case 'center':
+                    left = (NBD_STAGE.width - w) / 2;
+                    top = (NBD_STAGE.height - h) / 2;
+                    area.css({'top': top + 'px', 'left': left + 'px'});
+                    overlay.css({'top': top + 'px', 'left': left + 'px'});
+                    ip_left.val(left);
+                    ip_top.val(top);
+                    break;
+                case 'fit':
+                    var width = parent.find('.nbdesigner-image-original').width(),
+                        height = parent.find('.nbdesigner-image-original').height(),
+                        p_width = parent.find('.product_width').val(),
+                        p_height = parent.find('.product_height').val();
+                    parent.find('.real_width').val(p_width);
+                    parent.find('.real_height').val(p_height);
+                    parent.find('.real_top').val(0);
+                    parent.find('.real_left').val(0);
+                    left = (NBD_STAGE.width - width) / 2;
+                    top = (NBD_STAGE.height - height) / 2;
+                    area.css({'top': top + 'px', 'left': left + 'px', 'width': width + 'px', 'height': height + 'px'});
+                    overlay.css({
+                        'top': top + 'px',
+                        'left': left + 'px',
+                        'width': width + 'px',
+                        'height': height + 'px'
+                    });
+                    ip_left.val(left);
+                    ip_top.val(top);
+                    ip_width.val(width);
+                    ip_height.val(height);
+                    break;
+            }
+            parent.find('.nbdesiger-update-area-design').addClass('active');
+        },
+        change_background_type: function (e) {
+            var value = jQuery(e).val();
+            if (value == 'image') {
+                jQuery(e).parents('.nbdesigner-box-collapse').find('.nbdesigner_bg_image').show();
+                jQuery(e).parents('.nbdesigner-box-collapse').find('.nbdesigner_bg_color').hide();
+                jQuery(e).parents('.nbdesigner-box-collapse').find('.designer_img_src').show();
+                jQuery(e).parents('.nbdesigner-box-collapse').find('.nbdesigner-image-original').removeClass("background-transparent");
+            } else if (value == 'color') {
+                jQuery(e).parents('.nbdesigner-box-collapse').find('.nbdesigner_bg_image').hide();
+                jQuery(e).parents('.nbdesigner-box-collapse').find('.nbdesigner_bg_color').show();
+                var color = jQuery(e).parents('.nbdesigner-box-collapse').find('.nbd-color-picker').val();
+                jQuery(e).parents('.nbdesigner-box-collapse').find('.nbdesigner-image-original').removeClass("background-transparent");
+                jQuery(e).parents('.nbdesigner-box-collapse').find('.nbdesigner-image-original').css("background", color);
+                jQuery(e).parents('.nbdesigner-box-collapse').find('.designer_img_src').hide();
+            } else {
+                jQuery(e).parents('.nbdesigner-box-collapse').find('.nbdesigner_bg_image').hide();
+                jQuery(e).parents('.nbdesigner-box-collapse').find('.nbdesigner_bg_color').hide();
+                jQuery(e).parents('.nbdesigner-box-collapse').find('.designer_img_src').hide();
+                jQuery(e).parents('.nbdesigner-box-collapse').find('.nbdesigner-image-original').css("background", "");
+                jQuery(e).parents('.nbdesigner-box-collapse').find('.nbdesigner-image-original').addClass("background-transparent");
+            }
+
+            jQuery(e).parents(".nbdesigner-image-box").find(".nbd-color-picker").colorpicker();
+        },
+        toggleShowOverlay: function (e) {
+            jQuery(e).parents('.nbdesigner-box-collapse').find('.nbdesigner-image-overlay').toggle();
+            jQuery(e).parents('.nbdesigner-box-collapse').find('.overlay-toggle').toggle();
+        },
+        change_dimension_product: function (e) {
+            var parent = jQuery(e).parents('.nbdesigner-box-collapse'),
+                ip_left = parent.find('.hidden_img_src_left'),
+                ip_top = parent.find('.hidden_img_src_top'),
+                ip_width = parent.find('.hidden_img_src_width'),
+                ip_height = parent.find('.hidden_img_src_height');
+            var config = this.initParameter(e);
+            ip_left.val(config.proSize.left);
+            ip_top.val(config.proSize.top);
+            ip_width.val(config.proSize.width);
+            ip_height.val(config.proSize.height);
+            parent.find('.nbdesigner-image-original').css({
+                'width': config.proSize.width,
+                'height': config.proSize.height,
+                'left': config.proSize.left,
+                'top': config.proSize.top
+            });
+            this.updateRelativePosition(e, 'width');
+            this.updateRelativePosition(e, 'height');
+            this.updateRelativePosition(e, 'top');
+            this.updateRelativePosition(e, 'left');
+        },
+        updateRelativePosition: function (e, command) {
+            var parent = jQuery(e).parents('.nbdesigner-box-collapse');
+            parent.find('.nbd-has-notice').removeClass('nbd-notice');
+            var config = this.initParameter(e),
+                new_value = 0;
+            switch (command) {
+                case 'width':
+                    new_value = Math.round(config.ratio * config.vRealWidth);
+                    config.iRelWidth.val(new_value);
+                    break;
+                case 'height':
+                    new_value = Math.round(config.ratio * config.vRealHeight);
+                    config.iRelHeight.val(new_value);
+                    break;
+                case 'top':
+                    new_value = Math.round(config.ratio * (config.vRealTop + config.offset.top));
+                    config.iRelTop.val(new_value);
+                    break;
+                case 'left':
+                    new_value = Math.round(config.ratio * (config.vRealLeft + config.offset.left));
+                    config.iRelLeft.val(new_value);
+                    break;
+            }
+            config.design_area.css(command, new_value);
+            config.overlay_area.css(command, new_value);
+            if ((config.vRealWidth + config.vRealLeft) > config.vProWidth) parent.find('.notice-width').addClass('nbd-notice');
+            if ((config.vRealHeight + config.vRealTop) > config.vProHeight) parent.find('.notice-height').addClass('nbd-notice');
+        },
+        updateDesignAreaSize: function (e) {
+            var config = this.initParameter(e);
+            var vRealWidth = _round(config.vRelWidth / config.ratio, 2),
+                vRealHeight = _round(config.vRelHeight / config.ratio, 2),
+                vRealLeft = _round(config.vRelLeft / config.ratio - config.offset.left, 2),
+                vRealTop = _round(config.vRelTop / config.ratio - config.offset.top, 2);
+            config.iRealWidth.val(vRealWidth);
+            config.iRealHeight.val(vRealHeight);
+            config.iRealLeft.val(vRealLeft);
+            config.iRealTop.val(vRealTop);
+            config.updateRealSizeButton.removeClass('active');
+            var config = this.initParameter(e);
+        },
+        updatePositionDesignArea: function (e) {
+            var att = jQuery(e).data('index'),
+                value = jQuery(e).val(),
+                parent = jQuery(e).parents('.nbdesigner-box-collapse').find('.nbdesigner-info-box'),
+                area = jQuery(e).parents('.nbdesigner-box-collapse').find('.nbdesigner-area-design'),
+                overlay = jQuery(e).parents('.nbdesigner-box-collapse').find('.nbdesigner-image-overlay'),
+                height = parent.find('.area_design_height').val(),
+                width = parent.find('.area_design_width').val(),
+                left = parent.find('.area_design_left').val(),
+                top = parent.find('.area_design_top').val(),
+                sefl = jQuery(e);
+            if (att == 'width') {
+                if (value < 0) value = 0;
+                if (value > (NBD_STAGE.width - left)) value = NBD_STAGE.width - left;
+            } else if (att == 'height') {
+                if (value < 0) value = 0;
+                if (value > (NBD_STAGE.height - top)) value = NBD_STAGE.height - top;
+            } else if (att == 'left') {
+                if (value < 0) value = 0;
+                if (value > (NBD_STAGE.width - width)) {
+                    if (value > NBD_STAGE.width) value = NBD_STAGE.width;
+                    parent.find('.area_design_width').val(NBD_STAGE.width - value);
+                    area.css('width', (NBD_STAGE.width - value) + 'px');
+                }
+            } else if (att == 'top') {
+                if (value < 0) value = 0;
+                if (value > (NBD_STAGE.height - height)) {
+                    if (value > NBD_STAGE.height) value = NBD_STAGE.height;
+                    parent.find('.area_design_height').val(NBD_STAGE.height - value);
+                    area.css('height', (NBD_STAGE.height - value) + 'px');
+                }
+            }
+            parent.find('.nbdesiger-update-area-design').addClass('active');
+            area.css(att, value + 'px');
+            overlay.css(att, value + 'px');
+            sefl.val(value);
+        },
+        initParameter: function (e) {
+            var parent = jQuery(e).parents('.nbdesigner-box-collapse'),
+                iProWidth = parent.find('.product_width'),
+                iProHeight = parent.find('.product_height'),
+                vProWidth = parseFloat(iProWidth.val()),
+                vProHeight = parseFloat(iProHeight.val()),
+                iRealWidth = parent.find('.real_width'),
+                iRealHeight = parent.find('.real_height'),
+                iRealLeft = parent.find('.real_left'),
+                iRealTop = parent.find('.real_top'),
+                vRealWidth = parseFloat(iRealWidth.val()),
+                vRealHeight = parseFloat(iRealHeight.val()),
+                vRealLeft = parseFloat(iRealLeft.val()),
+                vRealTop = parseFloat(iRealTop.val()),
+                iRelWidth = parent.find('.area_design_width'),
+                iRelHeight = parent.find('.area_design_height'),
+                iRelLeft = parent.find('.area_design_left'),
+                iRelTop = parent.find('.area_design_top'),
+                vRelWidth = parseFloat(iRelWidth.val()),
+                vRelHeight = parseFloat(iRelHeight.val()),
+                vRelLeft = parseFloat(iRelLeft.val()),
+                vRelTop = parseFloat(iRelTop.val()),
+                design_area = parent.find('.nbdesigner-area-design'),
+                overlay_area = parent.find('.nbdesigner-image-overlay'),
+                updateRealSizeButton = parent.find('.nbdesiger-update-area-design'),
+                offset = {'left': parseFloat(vProHeight - vProWidth) / 2, 'top': 0},
+                ratio = NBD_STAGE.height / vProHeight,
+                proSize = {
+                    'height': NBD_STAGE.height,
+                    'width': Math.round(vProWidth * ratio),
+                    'left': Math.round((NBD_STAGE.width - vProWidth * ratio) / 2),
+                    'top': 0
+                };
+            if (vProWidth / vProHeight > NBD_STAGE.width / NBD_STAGE.height) {
+                ratio = NBD_STAGE.width / vProWidth;
+                offset = {'left': 0, 'top': parseFloat(vProWidth - vProHeight) / 2};
+                proSize = {
+                    'width': NBD_STAGE.width,
+                    'height': Math.round(vProHeight * ratio),
+                    'top': Math.round((NBD_STAGE.height - vProHeight * ratio) / 2),
+                    'left': 0
+                };
+            }
+            return {
+                iProWidth: iProWidth,
+                iProHeight: iProHeight,
+                vProWidth: vProWidth,
+                vProHeight: vProHeight,
+                iRealWidth: iRealWidth,
+                iRealHeight: iRealHeight,
+                iRealLeft: iRealLeft,
+                iRealTop: iRealTop,
+                vRealWidth: vRealWidth,
+                vRealHeight: vRealHeight,
+                vRealLeft: vRealLeft,
+                vRealTop: vRealTop,
+                iRelWidth: iRelWidth,
+                iRelHeight: iRelHeight,
+                iRelLeft: iRelLeft,
+                iRelTop: iRelTop,
+                vRelWidth: vRelWidth,
+                vRelHeight: vRelHeight,
+                vRelLeft: vRelLeft,
+                vRelTop: vRelTop,
+                design_area: design_area,
+                overlay_area: overlay_area,
+                ratio: ratio,
+                offset: offset,
+                updateRealSizeButton: updateRealSizeButton,
+                proSize: proSize
+            };
+        }
+    };
+
+    require([
+        'jquery',
+        'jquery/ui',
+        'admin_nbdesigner',
+        'setprimary',
+        'evol-color'
+    ], function ($) {
+        $(document).ready(function () {
+            $(".nbd-color-picker").colorpicker();
+            setTimeout(function () {
+                $(".page-actions-buttons button.reset").removeAttr('onclick');
+            }, 2000);
+
+            $("body").on('click', 'button.reset', function (event) {
+                $('input.bg_type').removeAttr('checked');
+                <?php
+                if (count($setting_default) > 0) {
+                foreach ($setting_default[0] as $k => $v) {
+                if ($k == 'bg_type') {
+                ?>
+                $('input.<?php echo $k; ?>[value="<?php echo $v; ?>"]').click();
+                <?php
+                } else {
+                ?>
+                $("input.<?php echo $k; ?>").val("<?php echo $v; ?>");
+                <?php
+                }
+                }
+                }
+                ?>
+                $('.nbd-color-picker').each(function (index, el) {
+                    $(this).siblings('div').css('background-color', $(this).val());
+                });
+                $('.nbdesigner-image-original').attr('style', 'width: 500px; height: 400px; left: 0px; top: 50px;');
+                $('.nbdesigner-area-design').attr('style', 'width: 400px; height: 300px; left: 50px; top: 100px;');
+                $('.nbdesigner-image-original .designer_img_src').attr('src', '<?php echo $img_skin_path; ?>');
+                $('.hidden_img_src').val('<?php echo $img_skin_path; ?>');
+            });
+
+            if ($('#_nbdesigner_admindesign').is(':checked')) {
+                $('.nbdesigner-opt-inner.use_global_template').show();
+            } else {
+                $('.nbdesigner-opt-inner.use_global_template').hide();
+            }
+
+            $('#_nbdesigner_admindesign').click(function () {
+                if ($(this).is(':checked'))
+                    $('.nbdesigner-opt-inner.use_global_template').show();
+                else
+                    $('.nbdesigner-opt-inner.use_global_template').hide();
+            });
+
+            if ($('#_nbdesigner_global_template').is(':checked')) {
+                $('#nbd-global-template-cat').show();
+            } else {
+                $('#nbd-global-template-cat').hide();
+            }
+
+            $('#_nbdesigner_global_template').click(function () {
+                if ($(this).is(':checked'))
+                    $('#nbd-global-template-cat').show();
+                else
+                    $('#nbd-global-template-cat').hide();
+            });
+        });
+    });
+
+    function setColor(element) {
+        require([
+            'jquery',
+            'jquery/ui',
+        ], function ($) {
+            jQuery(element).colorpicker();
+            jQuery(element).parents('.nbdesigner-box-collapse').find('.nbdesigner-image-original').css("background", jQuery(element).val());
+            jQuery(element).css("background", jQuery(element).val());
+            jQuery(element).next().trigger("click");
+        });
+    }
+
+    function primaryBtn(_element, pid, template_folder) {
+        var _url = $(_element).readAttribute('data-rev');
+        var arrayOfStrings = _url.split(";");
+        new Ajax.Request(arrayOfStrings[0], {
+            method: "get",
+            parameters: {
+                pid: arrayOfStrings[1],
+                template_folder: arrayOfStrings[2]
+            },
+            onSuccess: function (response) {
+            },
+            onComplete: function (response) {
+                var ret = jQuery.parseJSON(response.responseText);
+                if (ret.mes == "successfully") {
+                    location.reload();
+                }
+            }
+        });
+    }
+
+    function delete_template(_element, pid, template_folder) {
+        var _url = $(_element).readAttribute('data-rev');
+        var arrayOfStrings = _url.split(";");
+        new Ajax.Request(arrayOfStrings[0], {
+            method: "get",
+            parameters: {
+                pid: arrayOfStrings[1],
+                template_folder: arrayOfStrings[2]
+            },
+            onSuccess: function (response) {
+            },
+            onComplete: function (response) {
+                var ret = jQuery.parseJSON(response.responseText);
+                if (ret.mes == "successfully") {
+                    location.reload();
+                }
+            }
+        });
+    }
+
+    function open_manage_template() {
+        $('onlinedesign_tabs_template_section').click();
+        return;
+    }
+</script>

@@ -1,0 +1,127 @@
+<?php
+function checkRemoteFile($url)
+{
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    // don't download content
+    curl_setopt($ch, CURLOPT_NOBODY, 1);
+    curl_setopt($ch, CURLOPT_FAILONERROR, 1);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    if (curl_exec($ch) !== FALSE) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+$_orderCollection = $block->getCollection();
+?>
+<?php if (count($_orderCollection)): ?>
+    <div class="table-wrapper downloadable-products">
+        <p>
+            <?php echo __('+ If you have any problem with your design. Please  to the admin site via their email: <strong>' . $this->helper('Netbaseteam\Onlinedesign\Helper\Config')->getAdminEmail() . '</strong>'); ?>
+        </p>
+
+        <table id="my-downloadable-products-table" class="data table table-downloadable-products">
+            <thead>
+            <tr>
+                <th scope="col" class="col title"><?php echo __('ORDER #') ?></th>
+                <th scope="col" class="col title"><?php echo __('PRODUCT') ?></th>
+                <th scope="col" class="col title"><?php echo __('TOTAL') ?></th>
+            </tr>
+            </thead>
+            <tbody>
+            <?php
+            foreach ($_orderCollection as $o):
+                $order_id = $o->getId();
+                $link_order = '<strong><a href="' . $this->getUrl('sales/order/view', array('order_id' => $order_id)) . '" onclick="this.target=\'blank\'">#' . $o->getIncrementId() . '</a></strong>';
+                $orderItems = $block->getOrderItems($order_id);
+                $helper = $this->helper('Netbaseteam\Onlinedesign\Helper\Data');
+                ?>
+                <tr>
+                    <td data-th="<?php echo $block->escapeHtml(__('Increment Id')) ?>" class="col title">
+                        <?php echo $link_order ?>
+                    </td>
+                    <td data-th="<?php echo $block->escapeHtml(__('PRODUCT')) ?>" class="col title">
+                        <?php
+                        foreach ($orderItems as $item) {
+                            if ($item->getParentItemId() == null || $item->getParentItemId() == "") {
+                                $pname = $item->getName();
+                                $pid = $item->getProductId();
+                                $isOnlineDesign = count($block->getProductOnlineDesignId($pid));
+                                $product = $objectManager->create("Magento\Catalog\Model\Product")->load($pid);
+
+                                $purl = $product->getUrlModel()->getUrl($product); //$store->getBaseUrl($store::URL_TYPE_WEB) . $path;
+                                if ($isOnlineDesign) {
+                                    $link_p = '
+                                        <p><a href="' . $purl . '" target="_blank">' . $pname . '</a></p>
+                                    ';
+                                } else {
+                                    $link_p = '<p><a href="' . $purl . '" target="_blank">' . $pname . '</a><strong> Not OnlineDesign</strong></p>';
+                                }
+                                ?>
+                                <span class="nobr"><?php echo $link_p; ?></span>
+                            <?php
+
+                            }
+
+                            $data_design = "";
+                            if ($item->getNbdesignerJson() != null || $item->getNbdesignerJson() != "") {
+                                $data_design = $item->getNbdesignerJson();
+                                $folder = $helper->getSessionFolderFromPath($data_design);
+                                $html = '<div>';
+                                $list = json_decode($data_design);
+                                $check_exist_files = true;
+                                foreach ($list as $img) {
+                                    $arr_img = explode("nbdesigner", $img);
+                                    $src = str_replace("thumbs", "preview", $helper->getBaseUrl() . $arr_img[1]);
+                                    if (checkRemoteFile($src)) {
+                                        $html .= '<img width="60" height="60" style="border-radius: 3px; border: 1px solid #ddd; margin-top: 5px; margin-right: 5px; display: inline-block;" src="' . $src . '"/>';
+                                    } else {
+                                        $check_exist_files = false;
+                                    }
+                                }
+                                $html .= '</div>';
+
+                                $action = $helper->getAction($order_id, $pid);
+                                ?>
+                                <span class="nobr">
+									<?php echo $html; ?>
+                                    <?php
+                                    if ($check_exist_files) {
+                                        if ($action != "") {
+                                            if ($action == "decline") {
+                                                ?>
+												<p>(Rejected! Click
+												<a href="<?php echo $purl . "/?product_id=" . $pid . "&orderid=" . $order_id . "&folder=" . $folder . "&order_item_id=" . $item->getId() . "&task=redesign"; ?>" target="_blank">here </a>
+												to design again for the product <?php echo $pname; ?>!)
+												</p></br>
+											<?php } else { ?>
+                                                <p><?php echo __("(Approved!)"); ?></p>
+                                            <?php } ?>
+                                        <?php }
+                                    } ?>
+								</span>
+                            <?php
+
+                            } /* end image product design */
+                        }
+                        ?>
+                    </td>
+                    <td data-th="<?php echo $block->escapeHtml(__('TOTAL')) ?>" class="col title">
+                        <?php echo $this->helper('Magento\Framework\Pricing\Helper\Data')->currency($o->getGrandTotal(), true, false); ?>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+    <?php if ($block->getChildHtml('pager')): ?>
+        <div class="toolbar downloadable-products-toolbar bottom">
+            <?php echo $block->getChildHtml('pager'); ?>
+        </div>
+    <?php endif; ?>
+<?php else: ?>
+    <div class="message info empty"><span><?php echo __('You have not design.'); ?></span></div>
+<?php endif; ?>

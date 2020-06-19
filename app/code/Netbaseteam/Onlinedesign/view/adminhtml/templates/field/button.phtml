@@ -1,0 +1,112 @@
+<?php $helper = $this->helper('Netbaseteam\Onlinedesign\Helper\Data');?>
+<div id="body-overlay" style="display: none;"><div><img src="<?php echo $this->getViewFileUrl('Netbaseteam_Onlinedesign/images/loading.gif');?>" width="64px" height="64px"/></div></div>
+<div style="display: inline-block">
+    <?php echo $block->getButtonHtml() ?>
+    <script>
+        require([
+            'jquery',
+            'prototype',
+        ], function($){
+            var type = '<?php  echo $block->getTypeLicense() ?>';
+            function func_active() {
+                var code = $('input#nb_onlinedesign_license_license_license_code').val();
+                if (code != '') {
+                    var formData = new FormData();
+                    var form_key = FORM_KEY;
+                    formData.append('form_key', form_key);
+                    formData.append('license', code);
+                    $.ajax({
+                        url: '<?php echo $block->getAjaxUrl() ?>',
+                        type: "POST",
+                        data: formData,
+                        beforeSend: function () {
+                            $("#body-overlay").show();
+                            $("#nb_onlinedesign_license_get_license_get_license_code_email").val("example@gmail.com");
+                            $("#nb_onlinedesign_license_get_license_get_license_code_email").attr("disabled", true);
+                        },
+                        contentType: false,
+                        processData: false,
+                        cache: false,
+                        success: function (data) {
+                            $("#body-overlay").hide();
+                            $("#nb_onlinedesign_license_get_license_get_license_code_email").removeAttr("disabled");
+                            if (data.mess != 'Incorrect License key') {
+                                $('.page-actions .page-actions-buttons>button.primary').click();
+                            } else {
+                                location.reload();
+                            }
+                            alert(data.mess);
+                        },
+                        error: function () {}
+                    });
+                } else {
+                    alert('Please input a license key!');
+                }
+            }
+
+            $('#btn_active').click(function () {
+                func_active();
+            });
+
+            if (type == 'pro') {
+                $('#btn-upgrade-key').prop("disabled", true);
+            }else{
+                $('#btn-upgrade-key').prop("disabled", false);
+            }
+
+            if($('input#nb_onlinedesign_license_license_license_code').val()){
+                $('#nb_onlinedesign_license_license_license_code').prop("disabled", true);
+                $('#nb_onlinedesign_license_get_license').closest('.section-config').hide();
+            }
+        });
+    </script>
+    <button id="btn-remove-key" style ="background-color: #f44336; /* Red */">Remove</button>
+    <script>
+        require([
+            'jquery',
+            'prototype',
+        ], function($) {
+            function func_remove(e) {
+                var codex = $('input#nb_onlinedesign_license_license_license_code').val();
+                if (codex != '') {
+                    var params = {
+                        'license': codex
+                    };
+                    $('#nb_onlinedesign_license_license_license_code').prop("disabled", false);
+                    var formData = new FormData();
+                    var form_key = FORM_KEY;
+                    formData.append('form_key', form_key);
+                    formData.append('license', $('input#nb_onlinedesign_license_license_license_code').val());
+                    e.preventDefault();
+                    $.ajax({
+                        url: '<?php echo $block->getAjaxUrlRemove() ?>',
+                        type: "POST",
+                        data: formData,
+                        beforeSend: function () {
+                            $("#body-overlay").show();
+                        },
+                        contentType: false,
+                        processData: false,
+                        cache: false,
+                        success: function (data) {
+                            alert("Remove License key");
+                            $('input#nb_onlinedesign_license_license_license_code').removeAttr('value');
+                            $("#body-overlay").hide();
+                            if (data.mess != 'Incorrect License key') {
+                                $('.page-actions .page-actions-buttons>button.primary').click();
+                            }
+                        },
+                        error: function () {
+                            alert('2');
+                        }
+                    });
+                } else {
+                    alert('Please input a license key!');
+                }
+            }
+            $('#btn-remove-key').click(function (e) {
+                func_remove(e);
+            });
+        });
+    </script>
+</div>

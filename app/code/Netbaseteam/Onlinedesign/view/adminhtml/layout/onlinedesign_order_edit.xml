@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="admin-2columns-left" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <css src="Netbaseteam_Onlinedesign/css/admin-nbdesigner.css"/>
+        <css src="Netbaseteam_Onlinedesign/css/nbd-general.css"/>
+        <css src="Netbaseteam_Onlinedesign/css/popup_image.css"/>
+        <css src="Netbaseteam_Onlinedesign/css/font-awesome/css/font-awesome.css"/>
+        <css src="Netbaseteam_Onlinedesign/css/detail_order.css"/>
+        <css src="Netbaseteam_Onlinedesign/css/detail_order_other.css"/>
+    </head>
+    <update handle="editor"/>
+    <body>
+        <referenceContainer name="content">
+            <block class="Netbaseteam\Onlinedesign\Block\Adminhtml\Order\Edit" name="onlinedesign_edit"/>
+        </referenceContainer>
+        <referenceContainer name="left">
+            <block class="Netbaseteam\Onlinedesign\Block\Adminhtml\Order\Edit\Tabs" name="order_edit_tabs">
+                <block class="Netbaseteam\Onlinedesign\Block\Adminhtml\Order\Edit\Tab\Main" name="order_edit_tab_main"/>
+                <!-- <block class="Netbaseteam\Onlinedesign\Block\Adminhtml\Order\Edit\Tab\Content" name="order_edit_tab_content"/> -->
+                <!-- <block class="Netbaseteam\Onlinedesign\Block\Adminhtml\Onlinedesign\Edit\Tab\Template" name="onlinedesign_edit_tab_template"/> -->
+                <action method="addTab">
+                    <argument name="name" xsi:type="string">main_section</argument>
+                    <argument name="block" xsi:type="string">order_edit_tab_main</argument>
+                </action>
+				
+                <!-- <action method="addTab">
+                    <argument name="name" xsi:type="string">content_section</argument>
+                    <argument name="block" xsi:type="string">order_edit_tab_content</argument>
+                </action> -->
+            </block>
+        </referenceContainer>
+    </body>
+</page>

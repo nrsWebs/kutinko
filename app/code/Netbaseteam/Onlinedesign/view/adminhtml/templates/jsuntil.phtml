@@ -1,0 +1,17 @@
+<script>
+require([
+	'jquery'
+], function ($) {
+
+	jQuery(document).ready(function($){
+		if(jQuery("#art_main_filename").length) {
+			jQuery("#art_main_filename").attr("accept", ".svg, .png, .jpg, .jpeg");
+		}
+		
+		if(jQuery("#font_main_filename").length) {
+			jQuery("#font_main_filename").attr("accept", ".woff, .ttf");
+		}
+	});	
+		
+});
+</script>

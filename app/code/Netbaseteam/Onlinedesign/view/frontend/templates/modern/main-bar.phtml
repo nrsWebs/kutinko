@@ -1,0 +1,158 @@
+<?php
+$without_logo = true;
+$logo_url = '';
+$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+$customerSession = $objectManager->create('Magento\Customer\Model\Session');
+$isDirect = $this->getRequest()->getParam('is_direct');
+?>
+<div class="nbd-main-bar">
+    <?php if($isDirect):?>
+        <a href="<?=$this->getUrl()?>" class="<?php if($without_logo) echo ' logo-without-image'; ?>" style="text-decoration: none;">
+            <?php echo __('Home'); ?>
+        </a>
+    <?php endif;?>
+    <i class="icon-nbd icon-nbd-menu menu-mobile"></i>
+    <ul class="nbd-main-menu menu-left">
+        <li class="menu-item item-edit">
+            <span><?php echo __('File'); ?></span>
+            <div class="sub-menu" data-pos="left">
+                <ul>
+                    <?php if($customerSession->isLoggedIn()): ?>
+                    <li ng-if="false" class="sub-menu-item flex space-between" ng-click="loadUserDesigns()">
+                        <span><?php echo __('Open My Logo'); ?></span>
+                    </li>
+                    <li class="sub-menu-item flex space-between item-import-file" ng-click="loadMyDesign(null, false)">
+                        <span><?php echo __('Open My Design'); ?></span>
+                        <small>{{ 'M-O' | keyboardShortcut }}</small>
+                    </li>
+                    <?php endif; ?>
+                    <li class="sub-menu-item flex space-between item-import-file" ng-click="loadMyDesign(null, true)">
+                        <span><?php echo __('My Design in Cart'); ?></span>
+                        <small>{{ 'M-S-O' | keyboardShortcut }}</small>
+                    </li>                    
+                    <li class="sub-menu-item flex space-between item-import-file" ng-click="importDesign()">
+                        <span><?php echo __('Import Design'); ?></span>
+                        <small>{{ 'M-S-I' | keyboardShortcut }}</small>
+                    </li>
+                    <li class="sub-menu-item flex space-between" ng-click="exportDesign()">
+                        <span><?php echo __('Export Design'); ?></span>
+                        <small>{{ 'M-S-E' | keyboardShortcut }}</small>
+                    </li>
+                    <?php if( $settings['allow_customer_download_design_in_editor'] == 'yes' && ( $settings['nbdesigner_download_design_in_editor_png'] == '1' || $settings['nbdesigner_download_design_in_editor_pdf'] == '1' || $settings['nbdesigner_download_design_in_editor_jpg'] == '1' || $settings['nbdesigner_download_design_in_editor_svg'] == '1' ) ): ?>
+                    <li class="sub-menu-item flex space-between hover-menu" data-animate="bottom-to-top">
+                        <span class="title-menu"><?php echo __('Download'); ?></span>
+                        <i class="icon-nbd icon-nbd-arrow-drop-down rotate-90"></i>
+                        <div class="hover-sub-menu-item">
+                            <ul>
+                                <?php if( $settings['nbdesigner_download_design_in_editor_png'] == '1' ): ?>
+                                <li ng-click="saveDesign('png')"><span class="title-menu"><?php echo __('PNG'); ?></span></li>
+                                <?php endif; ?>
+                                <?php if( $settings['nbdesigner_download_design_in_editor_jpg'] == '1' ): ?>
+                                <li ng-click="saveData('download-jpg')"><span class="title-menu"><?php echo __('CMYK JPG'); ?></span></li>
+                                <?php endif; ?>
+                                <?php if( $settings['nbdesigner_download_design_in_editor_svg'] == '1' ): ?>
+                                <li ng-click="saveDesign('svg')"><span class="title-menu"><?php echo __('SVG'); ?></span></li>
+                                <?php endif; ?>
+                                <?php if( $settings['nbdesigner_download_design_in_editor_pdf'] == '1' ): ?>
+                                <li ng-click="saveData('download-pdf')"><span class="title-menu"><?php echo __('PDF'); ?></span></li>
+                                <?php endif; ?>
+                            </ul>
+                        </div>
+                    </li>
+                    <?php endif; ?>
+                </ul>
+            </div>
+            <div id="nbd-overlay"></div>
+        </li>
+        <li class="menu-item item-edit">
+            <span><?php echo __('Edit'); ?></span>
+            <div class="sub-menu" data-pos="left">
+                <ul>
+                    <li class="sub-menu-item flex space-between" ng-click="clearAllStage()">
+                        <span><?php echo __('Clear all design'); ?></span>
+                        <small>{{ 'M-E' | keyboardShortcut }}</small>
+                    </li>
+                    <li ng-if="settings.nbdesigner_save_for_later == 'yes'" class="sub-menu-item flex space-between" ng-click="saveForLater()">
+                        <span><?php echo __('Save for later'); ?></span>
+                        <small>{{ 'M-S-S' | keyboardShortcut }}</small>
+                    </li>  
+                </ul>
+            </div>
+            <div id="nbd-overlay"></div>
+        </li>
+        <li class="menu-item item-view">
+            <span><?php echo __('View'); ?></span>
+            <ul class="sub-menu" data-pos="left">
+                <li ng-show="!settings.is_mobile" class="sub-menu-item flex space-between" ng-click="toggleRuler()" ng-class="settings.showRuler ? 'active' : ''">
+                    <span class="title-menu"><?php echo __('Ruler'); ?></span>
+                    <small>{{ 'M-R' | keyboardShortcut }}</small>
+                </li>
+                <li class="sub-menu-item flex space-between" ng-click="settings.showGrid = !settings.showGrid" ng-class="settings.showGrid ? 'active' : ''">
+                    <span class="title-menu"><?php echo __('Show grid'); ?></span>
+                    <small>{{ 'S-G' | keyboardShortcut }}</small>
+                </li>
+                <li class="sub-menu-item flex space-between" ng-click="settings.bleedLine = !settings.bleedLine" ng-class="settings.bleedLine ? 'active' : ''">
+                    <span class="title-menu"><?php echo __('Show bleed line'); ?></span>
+                    <small>{{ 'M-L' | keyboardShortcut }}</small>
+                </li>
+                <li ng-show="!settings.is_mobile" class="sub-menu-item flex space-between" ng-click="settings.showDimensions = !settings.showDimensions" ng-class="settings.showDimensions ? 'active' : ''">
+                    <span class="title-menu"><?php echo __('Show dimensions'); ?></span>
+                </li>
+                <li class="sub-menu-item flex space-between" ng-click="clearGuides()" ng-class="!(stages[currentStage].rulerLines.hors.length > 0 || stages[currentStage].rulerLines.vers.length > 0) ? 'nbd-disabled' : ''">
+                    <span class="title-menu"><?php echo __('Clear Guides'); ?></span>
+                    <small>{{ 'S-L' | keyboardShortcut }}</small>
+                </li>
+		<li class="sub-menu-item flex space-between hover-menu" data-animate="bottom-to-top">
+                    <span class="title-menu"><?php echo __('Show warning'); ?></span>
+                    <i class="icon-nbd icon-nbd-arrow-drop-down rotate-90"></i>
+                    <div class="hover-sub-menu-item">
+                        <ul>
+                            <li ng-click="settings.showWarning.oos = !settings.showWarning.oos" ng-class="settings.showWarning.oos ? 'active' : ''"><span class="title-menu"><?php echo __('Out of stage'); ?></span></li>
+                            <li ng-click="settings.showWarning.ilr = !settings.showWarning.ilr" ng-class="settings.showWarning.ilr ? 'active' : ''"><span class="title-menu"><?php echo __('Image low resolution'); ?></span></li>
+                        </ul>
+                    </div>
+                </li>
+            </ul>
+            <div id="nbd-overlay"></div>
+        </li>
+        <?php if( $show_nbo_option && ($settings['nbdesigner_display_product_option'] == '1' || wp_is_mobile() ) ): ?>
+        <li class="menu-item item-nbo-options" ng-click="getPrintingOptions()">
+            <span><?php echo __('Options'); ?></span>
+        </li>
+        <?php endif; ?> 
+        <li class="menu-item tour_start" ng-if="!settings.is_mobile" ng-click="startTourGuide()">
+            <span class="nbd-tooltip-hover-right" title="<?php echo __('Quick Help'); ?>">?</span>
+        </li>
+    </ul>
+    <ul class="nbd-main-menu menu-center">
+        <li class="menu-item undo-redo" ng-click="undo()" ng-class="stages[currentStage].states.isUndoable ? 'in' : 'nbd-disabled'">
+            <i class="icon-nbd-baseline-undo" style="font-size: 24px"></i>
+            <span style="font-size: 12px;"><?php echo __('Undo'); ?></span>
+        </li>
+        <li class="menu-item undo-redo" ng-click="redo()" ng-class="stages[currentStage].states.isRedoable ? 'in' : 'nbd-disabled'">
+            <i class="icon-nbd-baseline-redo" style="font-size: 24px"></i>
+            <span style="font-size: 12px;"><?php echo __('Redo'); ?></span>
+        </li>
+    </ul>
+    <ul class="nbd-main-menu menu-right">
+        <li class="menu-item item-title animated slideInDown animate700 ipad-mini-hidden">
+            <input type="text" name="title" class="title" placeholder="Title" ng-model="stages[currentStage].config.name"/>
+        </li>
+        <li ng-if="settings.nbdesigner_share_design == 'yes'" class="menu-item item-share nbd-show-popup-share animated slideInDown animate800" ng-click="saveData('share')"><i class="icon-nbd icon-nbd-share2"></i></li>
+        <?php if( $task == 'create_template' ): ?>
+        <li class="menu-item item-process animated slideInDown animate900" id="save-template" ng-click="loadTemplateCat()">
+            <span><?php echo __('Save Template'); ?></span><i class="icon-nbd icon-nbd-arrow-upward rotate90"></i>
+        </li>
+        <?php else: ?>
+        <li ng-class="printingOptionsAvailable ? '' : 'nbd-disabled'" class="menu-item item-process animated slideInDown animate900 save-data" data-overlay="overlay" 
+            <?php if( $task == 'create' || ( $task == 'edit' && ( isset( $_GET['design_type'] ) && $_GET['design_type'] == 'template' ) ) ): ?>
+            ng-click="prepareSaveTemplate()" 
+            <?php else: ?>
+            ng-click="saveData()" 
+            <?php endif; ?> 
+            data-tour="process" data-tour-priority="7">
+            <span><?php echo __('Process'); ?></span><i class="icon-nbd icon-nbd-arrow-upward rotate90"></i>
+        </li>
+        <?php endif; ?> 
+    </ul>
+</div>

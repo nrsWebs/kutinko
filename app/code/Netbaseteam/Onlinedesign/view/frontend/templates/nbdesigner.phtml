@@ -1,0 +1,974 @@
+<?php
+$product_id = $block->getCurrentProduct()->getId();
+$statusUploadDesign = $block->getStatusUploadDesign($product_id);
+$src = $this->getUrl('onlinedesign/index/design', array('_current' => true));
+$urlAction = $this->getBaseUrl() . 'onlinedesign/index/info';
+$src .= "?product_id=" . $product_id;
+?>
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe.
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides.
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo https://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+<script>
+    require([
+        'jquery',
+        'photoswipe',
+        'photoswipe-ui-default'
+    ], function ($, PhotoSwipe, PhotoSwipeUI_Default) {
+        nbd_ready = false;
+        jQuery(document).ready(function ($) {
+            $('#container-online-designer').css('display', 'block');
+            $("button.btn-cart").css("display", "none");
+            $("#triggerDesign").text(jQuery("#dsgn-btn-name").text());
+
+            var nbd_create_own_page = "<?php echo $this->getUrl('*/*/*', ['_current' => true, '_use_rewrite' => true]);?>";
+
+            window.NBDESIGNERPRODUCT = {
+                copy_source: function( e ){
+                    jQuery(e).prev('.nbd-cart-design-url').select();
+                    document.execCommand("copy");
+                },
+
+                hide_loading_iframe: function(){
+                    jQuery("#nbd_processing").hide();
+                },
+                save_for_later: function(){
+                    var nbds_frontend = '<?php echo $urlAction; ?>';
+                    jQuery('img.nbd-save-loading').removeClass('hide');
+                    jQuery.ajax({
+                        url: nbds_frontend,
+                        method: "POST",
+                        data: {
+                            action   :    'nbd_save_for_later',
+                            product_id :   NBDESIGNERPRODUCT.product_id,
+                            dataType: 'json',
+                            variation_id :   NBDESIGNERPRODUCT.variation_id,
+                            folder: NBDESIGNERPRODUCT.folder
+                          //  nonce: nbds_frontend
+                        }
+                    }).done(function(data){
+                        var convert = jQuery.parseJSON(data);
+                        if( convert.flag == 1 ){
+                            jQuery('img.nbd-save-loading').addClass('hide');
+                            jQuery('a.nbd-save-for-later').addClass('saved');
+                            jQuery('a.nbd-save-for-later svg').show();
+                            
+                            jQuery.each( jQuery('#nbd-share-group a'), function(){
+                                var d = new Date();
+                                var href = jQuery(this).attr('data-href');
+                                var share_url =nbd_create_own_page + '?product_id=' + NBDESIGNERPRODUCT.product_id + '&variation_id=' + NBDESIGNERPRODUCT.variation_id + '&reference=' + convert.folder + '&nbd_share_id=' + convert.folder + '&t=' + d.getTime();
+                                var _href = href + encodeURIComponent(share_url);
+                                if( jQuery(this).attr('id') == 'nbd-pinterest' ) _href += '&media=' + encodeURIComponent(share_image_url) + '&description=' + jQuery(this).attr('data-description');
+                                if( jQuery(this).attr('data-text') != undefined ) _href += '&text=' + jQuery(this).attr('data-text');
+                                jQuery(this).attr('href', _href);
+                            });
+                            jQuery('.saved-design-link').show();
+                        }else{
+                            alert('Opps! Error while save design!');
+                        };
+                    });
+                },
+                download_pdf: function(){
+                    jQuery('img.nbd-pdf-loading').removeClass('hide');
+                    jQuery.ajax({
+                        url: nbds_frontend.url,
+                        method: "POST",
+                        data: {
+                            action   :    'nbd_frontend_download_pdf',
+                            nbd_item_key :   NBDESIGNERPRODUCT.folder,
+                            nonce: nbds_frontend.nonce
+                        }            
+                    }).done(function(data){
+                        jQuery('img.nbd-pdf-loading').addClass('hide');
+                        var data = JSON.parse(data);
+                        var filename = 'design.pdf',
+                        a = document.createElement('a');
+                        a.setAttribute('href', data[0].link);
+                        a.setAttribute('download', filename);
+                        a.click()             
+                    });         
+                },
+                download_pdf_in_order: function( e, el ){
+                    e.preventDefault();
+                    var sefl = el,
+                        nbd_item_key = sefl.attr('data-nbd-item'),
+                        order_id = sefl.attr('data-order');
+                    sefl.find('span').addClass('active');
+                    jQuery.ajax({
+                        url: nbds_frontend.url,
+                        method: "POST",
+                        data: {
+                            action   :    'nbd_frontend_download_pdf',
+                            nbd_item_key :   nbd_item_key,
+                            order_id :   order_id,
+                            nonce: nbds_frontend.nonce
+                        }            
+                    }).done(function(data){
+                        sefl.find('span').removeClass('active');
+                        var data = JSON.parse(data);
+                        var filename = 'design.pdf',
+                        a = document.createElement('a');
+                        a.setAttribute('href', data[0].link);
+                        a.setAttribute('download', filename);
+                        a.click()             
+                    });         
+                },  
+                nbd_download_final_pdf: function( e, el ){
+                    e.preventDefault();
+                    var sefl = el,
+                        nbd_item_key = sefl.attr('data-nbd-item');
+                    sefl.find('span').addClass('active');
+                    jQuery.ajax({
+                        url: nbds_frontend.url,
+                        method: "POST",
+                        data: {
+                            action   :    'nbd_download_final_pdf',
+                            nbd_item_key :   nbd_item_key,
+                            nonce: nbds_frontend.nonce
+                        }            
+                    }).done(function(data){
+                        sefl.find('span').removeClass('active');
+                        var data = JSON.parse(data);
+                        if( data.flag == 1 ){
+                            data.pdf.forEach(function(item, index){
+                                var filename = 'design_' + index + '.pdf',
+                                a = document.createElement('a');
+                                a.setAttribute('href', item);
+                                a.setAttribute('download', filename);
+                                a.click()                        
+                            });     
+                        }
+                    });         
+                },    
+                insert_customer_design: function (data) {
+
+                },
+                hide_iframe_design: function () {
+                    var height = -jQuery(window).height();
+                    jQuery('#container-online-designer').removeClass('show');
+                    jQuery('#container-online-designer').stop().animate({
+                        top: height,
+                        opacity: 0
+                    }, 500);
+                },
+                show_design_thumbnail: function (arr, task, config) {
+                    jQuery('body, html').removeClass('nbd-prevent-scroll');
+                    if( jQuery('#triggerDesign').length > 0 ){
+                        jQuery('button[type="submit"].single_add_to_cart_button').show();
+                    };
+                    jQuery('#nbdesigner-preview-title').show();
+                    jQuery('#nbd-actions').show();
+                    jQuery('#nbdesign-new-template').show();
+                    if(task == 'create_template' || task == 'edit_template'){
+                        jQuery('#triggerDesign').text('Edit Template');
+                    }
+                    var html = '';
+                    var d = new Date();
+                    var count = 1;
+                    var has_config = false;
+                    var product = [];
+                    if( config ){
+                        has_config = true;
+                        product = config.product;
+                    }
+                    jQuery.each(arr, function (key, val) {
+                        if(count == 1) share_image_url = val;
+                        count++;
+                        var p_index = key.slice(6);
+                        var data_width = has_config ? product[p_index].img_src_width : '500',
+                            data_height = has_config ? product[p_index].img_src_height : '500',
+                            data_title = has_config ? product[p_index].orientation_name : 'Side ' + p_index;
+                        html += '<div class="img-con" style="cursor: pointer;" onclick="NBDESIGNERPRODUCT.show_lightbox( this )"><img data-title="'+data_title+'" data-width="'+data_width+'" data-height="'+data_height+'" src="' + val + '?t=' + d.getTime() +'" /></div>'
+                    });
+                    jQuery.each( jQuery('#nbd-share-group a'), function(){
+                        var d = new Date();
+                        var href = jQuery(this).attr('data-href');
+                        var share_url =nbd_create_own_page + '?product_id=' + NBDESIGNERPRODUCT.product_id + '&variation_id=' + NBDESIGNERPRODUCT.variation_id + '&reference=' + NBDESIGNERPRODUCT.folder + '&nbd_share_id=' + NBDESIGNERPRODUCT.folder + '&t=' + d.getTime();
+                        var _href = href + encodeURIComponent(share_url);
+                        if( jQuery(this).attr('id') == 'nbd-pinterest' ) _href += '&media=' + encodeURIComponent(share_image_url) + '&description=' + jQuery(this).attr('data-description');
+                        if( jQuery(this).attr('data-text') != undefined ) _href += '&text=' + jQuery(this).attr('data-text');
+                        jQuery(this).attr('href', _href);
+                    });
+                    jQuery('#nbdesigner_frontend_area').html('');
+                    jQuery('#nbdesigner_frontend_area').append(html);
+                    hideDesignFrame();
+                    jQuery(document).triggerHandler( 'after_show_design_thumbnail' );
+                    var flipbook = jQuery("[class*=real3dflipbook]:first");
+                    /* Integate with real3dflipbook */
+                    if( flipbook.length > 0 ){
+                        var _class = flipbook.attr('class'),
+                            obj = 'real3dflipbook_' + _class.substring(_class.length - 1);  
+                        var options = window[obj];
+                        var json_str = options.replace(/&quot;/g, '"');
+                        json_str = json_str.replace(/“/g, '"');
+                        json_str = json_str.replace(/”/g, '"');
+                        json_str = json_str.replace(/″/g, '"');
+                        json_str = json_str.replace(/„/g, '"');
+
+                        json_str = json_str.replace(/«&nbsp;/g, '"');
+                        json_str = json_str.replace(/&nbsp;»/g, '"');
+
+
+                        options = jQuery.parseJSON(json_str);
+                        options.assets = {
+                            preloader: options.rootFolder + "images/preloader.jpg",
+                            left: options.rootFolder + "images/left.png",
+                            overlay: options.rootFolder + "images/overlay.jpg",
+                            flipMp3: options.rootFolder + "mp3/turnPage.mp3",
+                            shadowPng: options.rootFolder + "images/shadow.png"
+                        };
+                        var pages = [];    
+                        jQuery.each(arr, function (key, val) {
+                            pages.push({
+                                htmlContent: '',
+                                src: val,
+                                thumb: val,
+                                title: key
+                            });
+                        });
+                        options.pages = pages;
+                        options.pdfjsworkerSrc = options.rootFolder + 'js/pdf.worker.min.js'
+                        function convertStrings(obj) {
+                            jQuery.each(obj, function (key, value) {
+                                if (typeof (value) == 'object' || typeof (value) == 'array') {
+                                    convertStrings(value)
+                                } else if (!isNaN(value)) {
+                                    if (obj[key] === "")
+                                        delete obj[key]
+                                    else
+                                        obj[key] = Number(value)
+                                } else if (value == "true") {
+                                    obj[key] = true
+                                } else if (value == "false") {
+                                    obj[key] = false
+                                }
+                            });
+
+                        }
+                        convertStrings(options);
+                        for (var i = 0; i < options.pages.length; i++) {
+                            if (typeof (options.pages[i].htmlContent) != 'undefined' && options.pages[i].htmlContent != "" && options.pages[i].htmlContent != "undefined")
+                                options.pages[i].htmlContent = unescape(options.pages[i].htmlContent)
+                            else
+                                delete options.pages[i].htmlContent
+                        }
+                        options.social = [];
+                        if (options.facebook == "")
+                            delete options.facebook
+                        if (options.twitter == "")
+                            delete options.twitter
+                        if (options.google_plus == "")
+                            delete options.google_plus
+                        if (options.pinterest == "")
+                            delete options.pinterest
+                        if (options.email == "")
+                            delete options.email
+                        if (options.pageWidth == "")
+                            delete options.pageWidth
+                        if (options.pageHeight == "")
+                            delete options.pageHeight
+
+                        if (typeof (options.btnShare) == 'undefined' || !options.btnShare)
+                            options.btnShare = {enabled: false}
+                        if (typeof (options.btnNext) == 'undefined' || !options.btnNext)
+                            options.btnNext = {enabled: false}
+                        if (typeof (options.btnPrev) == 'undefined' || !options.btnPrev)
+                            options.btnPrev = {enabled: false}
+                        if (typeof (options.btnZoomIn) == 'undefined' || !options.btnZoomIn)
+                            options.btnZoomIn = {enabled: false}
+                        if (typeof (options.btnZoomOut) == 'undefined' || !options.btnZoomOut)
+                            options.btnZoomOut = {enabled: false}
+                        if (typeof (options.btnToc) == 'undefined' || !options.btnToc)
+                            options.btnToc = {enabled: false}
+                        if (typeof (options.btnThumbs) == 'undefined' || !options.btnThumbs)
+                            options.btnThumbs = {enabled: false}
+                        if (typeof (options.btnDownloadPages) == 'undefined' || !options.btnDownloadPages)
+                            options.btnDownloadPages = {enabled: false}
+                        if (typeof (options.btnDownloadPdf) == 'undefined' || !options.btnDownloadPdf)
+                            options.btnDownloadPdf = {enabled: false}
+                        if (typeof (options.btnExpand) == 'undefined' || !options.btnExpand)
+                            options.btnExpand = {enabled: false}
+                        if (typeof (options.btnExpandLightbox) == 'undefined' || !options.btnExpandLightbox)
+                            options.btnExpandLightbox = {enabled: false}
+                        if (typeof (options.btnSound) == 'undefined' || !options.btnSound)
+                            options.btnSound = {enabled: false}
+                        if (typeof (options.btnShare.icon) == 'undefined' || options.btnShare.icon == '')
+                            options.btnShare.icon = "fa-share";
+                        if (typeof (options.btnShare.title) == 'undefined' || options.btnShare.title == '')
+                            options.btnShare.title = "Share";
+
+                        if (typeof (options.btnNext.icon) == 'undefined' || options.btnNext.icon == '')
+                            options.btnNext.icon = "fa-chevron-right";
+                        if (typeof (options.btnNext.title) == 'undefined' || options.btnNext.title == '')
+                            options.btnNext.title = "Next page";
+
+                        if (typeof (options.btnPrev.icon) == 'undefined' || options.btnPrev.icon == '')
+                            options.btnPrev.icon = "fa-chevron-left";
+                        if (typeof (options.btnPrev.title) == 'undefined' || options.btnPrev.title == '')
+                            options.btnPrev.title = "Previous page";
+
+                        if (typeof (options.btnZoomIn.icon) == 'undefined' || options.btnZoomIn.icon == '')
+                            options.btnZoomIn.icon = "fa-plus";
+                        if (typeof (options.btnZoomIn.title) == 'undefined' || options.btnZoomIn.title == '')
+                            options.btnZoomIn.title = "Zoom in";
+
+                        if (typeof (options.btnZoomOut.icon) == 'undefined' || options.btnZoomOut.icon == '')
+                            options.btnZoomOut.icon = "fa-minus";
+                        if (typeof (options.btnZoomOut.title) == 'undefined' || options.btnZoomOut.title == '')
+                            options.btnZoomOut.title = "Zoom out";
+
+                        if (typeof (options.btnToc.icon) == 'undefined' || options.btnToc.icon == '')
+                            options.btnToc.icon = "fa-list-ol";
+                        if (typeof (options.btnToc.title) == 'undefined' || options.btnToc.title == '')
+                            options.btnToc.title = "Table of content";
+
+                        if (typeof (options.btnThumbs.icon) == 'undefined' || options.btnThumbs.icon == '')
+                            options.btnThumbs.icon = "fa-th-large";
+                        if (typeof (options.btnThumbs.title) == 'undefined' || options.btnThumbs.title == '')
+                            options.btnThumbs.title = "Pages";
+
+                        if (typeof (options.btnDownloadPages.icon) == 'undefined' || options.btnDownloadPages.icon == '')
+                            options.btnDownloadPages.icon = "fa-download";
+                        if (typeof (options.btnDownloadPages.title) == 'undefined' || options.btnDownloadPages.title == '')
+                            options.btnDownloadPages.title = "Download pages";
+                        // if(options.downloadPagesUrl)
+                        // options.btnDownloadPages.url = options.downloadPagesUrl;
+
+                        if (typeof (options.btnDownloadPdf.icon) == 'undefined' || options.btnDownloadPdf.icon == '')
+                            options.btnDownloadPdf.icon = "fa-file";
+                        if (typeof (options.btnDownloadPdf.title) == 'undefined' || options.btnDownloadPdf.title == '')
+                            options.btnDownloadPdf.title = "Download PDF";
+                        // if(options.downloadPdfUrl)
+                        // options.btnDownloadPdf.url = options.downloadPdfUrl;
+
+                        if (typeof (options.btnExpand.icon) == 'undefined' || options.btnExpand.icon == '')
+                            options.btnExpand.icon = "fa-expand";
+                        if (typeof (options.btnExpand.iconAlt) == 'undefined' || options.btnExpand.iconAlt == '')
+                            options.btnExpand.iconAlt = "fa-compress";
+                        if (typeof (options.btnExpand.title) == 'undefined' || options.btnExpand.title == '')
+                            options.btnExpand.title = "Toggle fullscreen";
+
+                        if (typeof (options.btnExpandLightbox.icon) == 'undefined' || options.btnExpandLightbox.icon == '')
+                            options.btnExpandLightbox.icon = "fa-expand";
+                        if (typeof (options.btnExpandLightbox.iconAlt) == 'undefined' || options.btnExpandLightbox.iconAlt == '')
+                            options.btnExpandLightbox.iconAlt = "fa-compress";
+                        if (typeof (options.btnExpandLightbox.title) == 'undefined' || options.btnExpandLightbox.title == '')
+                            options.btnExpandLightbox.title = "Toggle fullscreen";
+
+                        if (typeof (options.btnSound.icon) == 'undefined' || options.btnSound.icon == '')
+                            options.btnSound.icon = "fa-volume-up";
+                        if (typeof (options.btnSound.title) == 'undefined' || options.btnSound.title == '')
+                            options.btnSound.title = "Sound";
+
+                        if (typeof (options.viewMode) == 'undefined')
+                            options.viewMode = "webgl"
+
+                        if (options.btnDownloadPages.url) {
+                            options.btnDownloadPages.url = options.btnDownloadPages.url.replace(/\\/g, '/')
+                            options.btnDownloadPages.enabled = true
+                        } else
+                            options.btnDownloadPages.enabled = false
+
+                        if (options.btnDownloadPdf.url) {
+                            options.btnDownloadPdf.url = options.btnDownloadPdf.url.replace(/\\/g, '/')
+                            options.btnDownloadPdf.enabled = true
+                        } else
+                            options.btnDownloadPdf.enabled = false;
+
+
+                        var flipcon = jQuery('.real3dflipbook-1');
+                        flipcon.flipBook(options);
+                    }
+                    
+                },
+                get_gallery_items: function(){
+                    var $slides = jQuery('.img-con'),
+                            items   = [];
+                    if ($slides.length > 0) {
+                        $slides.each(function (i, el) {
+                            var img = jQuery(el).find('img');
+                            if (img.length) {
+                                var item = {
+                                    src: img.attr('src'),
+                                    w: parseInt( img.attr('data-width') ) * 2,
+                                    h: parseInt( img.attr('data-height') ) * 2,
+                                    title: img.attr('data-title')
+                                };
+                                items.push(item);
+                            }
+                        });
+                    }
+                    return items;        
+                },
+                show_lightbox: function( e ){
+                    if(!PhotoSwipe) return;
+                    var pswpElement = jQuery( '.pswp' )[0],
+                        items       = this.get_gallery_items(),
+                        eventTarget = jQuery( e.target ),
+                        clicked;
+                    clicked = eventTarget.closest( '.img-con' );
+                    var options = jQuery.extend( {
+                            index: jQuery( clicked ).index()
+                    } );
+
+                    // Initializes and opens PhotoSwipe.
+                    var photoswipe = new PhotoSwipe( pswpElement, PhotoSwipeUI_Default, items, options );
+                    photoswipe.init();        
+                },
+                nbdesigner_ready: function(){
+                    if(jQuery('input[name="variation_id"]').length > 0){
+                        var vid = jQuery('input[name="variation_id"]').val();
+                        if( ( "undefined" != typeof is_nbd_bulk_variation) || ( vid != '' &&  parseInt(vid) > 0 ) ) {
+                            jQuery('#triggerDesign').removeClass('nbdesigner_disable');
+                        }
+                    }else{
+                        jQuery('#triggerDesign').removeClass('nbdesigner_disable');
+                    }
+                    jQuery('.nbdesigner-img-loading').addClass('hide');
+                },
+                nbdesigner_unready: function(){
+                    jQuery('#triggerDesign').addClass('nbdesigner_disable');
+                    jQuery('.nbdesigner-img-loading').removeClass('hide');
+                },
+                get_sugget_design: function(product_id, variation_id){
+                    if(!jQuery('.nbdesigner-related-product-image').length) return;
+                    var products = [];
+                    jQuery.each(jQuery('.nbdesigner-related-product-image'), function(){
+                        products.push(jQuery(this).attr('data-id'));
+                        jQuery(this).parent('.nbdesigner-related-product-item').find('.nbdesigner-overlay').addClass('open');
+                    });
+                    if( !products.length ) return;
+                    jQuery.ajax({
+                        url: nbds_frontend.url,
+                        method: "POST",
+                        data: {
+                            "action": "nbdesigner_get_suggest_design",
+                            "products": products,
+                            "product_id" : product_id,
+                            "variation_id" : variation_id,
+                            "nonce": nbds_frontend.nonce
+                        }            
+                    }).done(function(data){
+                        data = JSON.parse(data);
+                        jQuery.each(jQuery('.nbdesigner-related-product-image'), function(){
+                            if(data['flag']){
+                                var href = jQuery(this).attr('href'),
+                                data_id = jQuery(this).attr('data-id');
+                                jQuery(this).attr('href', addParameter(href, 'nbds-ref', data['nbd_item_key'], false));       
+                                jQuery(this).find('img').attr({'src' : data['images'][data_id], 'srcset' : ''});
+                            }
+                            jQuery(this).parent('.nbdesigner-related-product-item').find('.nbdesigner-overlay').removeClass('open');
+                        });
+                    });
+                },
+                update_nbu_value: function( arr ){
+                    var files = '';
+                    jQuery.each(arr, function (key, val) {
+                        files += key == 0 ? val.name : '|' + val.name;
+                    });
+                    if( jQuery('#triggerDesign').length > 0 ){
+                        jQuery('button[type="submit"].single_add_to_cart_button').show();
+                    };          
+                    jQuery('input[name="nbd-upload-files"]').val( files );
+                },
+                remove_design: function(type, cart_item_key){
+                    jQuery('form.woocommerce-cart-form').addClass( 'processing' ).block( {
+                        message: null,
+                        overlayCSS: {
+                            background: '#fff',
+                            opacity: 0.6
+                        }
+                    } );
+                    jQuery.ajax({
+                        url: nbds_frontend.url,
+                        method: "POST",
+                        data: {
+                            "action": "nbd_remove_cart_design",
+                            "type": type,
+                            "cart_item_key": cart_item_key,
+                            "nonce": nbds_frontend.nonce
+                        }            
+                    }).done(function(data){
+                        jQuery('form.woocommerce-cart-form').removeClass( 'processing' ).unblock();
+                        if(data == 'success'){
+                            var designSection = jQuery('#nbd' + cart_item_key),
+                                uploadSection = jQuery('#nbu' + cart_item_key),
+                                extraPrice = jQuery('#nbx' + cart_item_key);
+                            var sections =  designSection.length + uploadSection.length;
+                            if( type == 'custom' ) {
+                                designSection.remove();
+                            }else {
+                                uploadSection.remove();
+                            }
+                            if( sections < 2 ) {
+                                extraPrice.remove();
+                                /* Update cart after remove design and upload files */
+                                jQuery( '.woocommerce-cart-form input[name="update_cart"]' ).prop( 'disabled', false ).trigger( 'click' );
+                            }
+                        }
+                    });
+                },
+                delete_my_design: function( e ){
+                    var con = confirm(nbds_frontend.confirm_delete_design);
+                    if( con ){
+                        var sefl = jQuery(e),
+                        design_id = sefl.attr('data-design'),
+                        tr_con = sefl.parents('tr.order');
+                        jQuery('.container-design').addClass( 'processing' ).block( {
+                            message: null,
+                            overlayCSS: {
+                                background: '#fff',
+                                opacity: 0.6
+                            }
+                        } );        
+                        jQuery.ajax({
+                            url: nbds_frontend.url,
+                            method: "POST",
+                            data: {
+                                action   :    'nbd_delete_my_design',
+                                design_id :   design_id,
+                                nonce: nbds_frontend.nonce
+                            }            
+                        }).done(function(data){
+                            jQuery('.container-design').removeClass( 'processing' ).unblock();
+                            if(data.flag == 1){
+                                tr_con.remove();
+                                alert(nbds_frontend.delete_success)
+                            }
+                        })   
+                    }
+                },
+                add_design_to_cart: function(e){
+                    var sefl = jQuery(e),
+                    design_id = sefl.attr('data-design');
+                    jQuery('.container-design').addClass( 'processing' ).block( {
+                        message: null,
+                        overlayCSS: {
+                            background: '#fff',
+                            opacity: 0.6
+                        }
+                    } );        
+                    jQuery.ajax({
+                        url: nbds_frontend.url,
+                        method: "POST",
+                        data: {
+                            action   :    'nbd_add_design_to_cart',
+                            design_id :   design_id,
+                            nonce: nbds_frontend.nonce
+                        }            
+                    }).done(function(data){
+                        jQuery('.container-design').removeClass( 'processing' ).unblock();
+                        if(data.flag == 1){
+                            window.location = nbds_frontend.cart_url;
+                        }else{
+                            alert('Opp! Try again later')
+                        }
+                    })         
+                },
+                add_variation_bulk_form: function(){
+                    var variation_wrap = jQuery('.nbd-variation-wrap').first(),
+                    new_variation_wrap = variation_wrap.clone();
+                    new_variation_wrap.appendTo('#nbd-variations-wrap');  
+                    jQuery(new_variation_wrap).find('.nbd-variation-quantity').val(1);
+                    this.init_nbd_variation_value();
+                },
+                remove_variation_bulk_form: function(e){
+                    var self = jQuery(e),
+                        wrap =  self.closest('.nbd-variation-wrap');  
+                    wrap.remove(); 
+                    this.init_nbd_variation_value();
+                },
+                init_nbd_variation_value: function(){
+                    var nbd_variation_value = '',
+                        has_quantity = false;        
+                    jQuery('.nbd-variation-value').val(nbd_variation_value);
+                    jQuery('.nbd-variation-wrap').each(function(index){
+                        var variation_id = jQuery(this).find('select').val();
+                        var quantity = jQuery(this).find('input').val();
+                        if( quantity > 0 ) has_quantity = true;
+                        nbd_variation_value += index > 0 ? '|' : '';
+                        nbd_variation_value += variation_id + '_' + quantity;
+                    });
+                    jQuery('.nbd-variation-value').val(nbd_variation_value);
+                    if( has_quantity ){
+                        jQuery('.single_add_to_cart_button').removeClass('disabled wc-variation-selection-needed');
+                    }else{
+                        jQuery('.single_add_to_cart_button').addClass('disabled wc-variation-selection-needed');
+                    }
+                },
+                change_nbd_dokan_format: function( e ){
+                    var type = jQuery(e).val(),
+                        el_action = jQuery(e).parents('.nbd-dokan-download-wrap').find('a.nbd-dokan-download'),
+                        href = el_action.attr('data-href');
+                        el_action.attr('href', href + '&type=' + type);
+                },
+                change_nbd_download_type: function( e ){
+                    var type = jQuery(e).val(),
+                        parent = jQuery(e).parents('.nbd-order-item-download-section'),    
+                        el_action = parent.find('a.nbd-order-download-file'),
+                        link = parent.attr('data-href');
+                    if( type == 'pdf' ) {
+                        jQuery('#nbd-show-bleed')
+                        jQuery('.nbd-pdf-options').removeClass('nbd-hide');
+                    }
+                    el_action.attr('href', link + '&type=' + type);        
+                },
+                change_nbd_download_pdf_type: function( ){
+                    jQuery.each(jQuery('.nbd-order-item-download-section'), function(){
+                        var _bleed = jQuery('#nbd-show-bleed').is(':checked') ? 'yes' : 'no';
+                        var _multi_file = jQuery('#nbd-multi-file').is(':checked') ? 'yes' : 'no';
+                        jQuery('.nbd-pdf-options').addClass('nbd-hide');
+                        jQuery.each( jQuery('.nbd-order-item-download-section'), function(){
+                            var link = jQuery(this).find('.nbd-order-download-file').attr('href');
+                            link += '&multi_file=' + _multi_file + '&bleed=' + _bleed;
+                            jQuery(this).find('.nbd-order-download-file').attr('href', link);
+                        })
+                    });
+                },
+                qty: 1,
+                updateQty: function(qty, variations){
+                    /* jQuery('input[name="quantity"]').val(qty); */
+                    /*if( variations ){
+                        NBDESIGNERPRODUCT.variations = JSON.parse( JSON.stringify(variations) );
+                        jQuery(document).triggerHandler( 'change_nbo_variations' );
+                    }*/
+                }
+            };
+
+            var width = jQuery(window).innerWidth();
+            var height = jQuery(window).height();
+            var w = -width;
+            var h = -height;
+            var nbd_append_iframe = false;
+
+            var getURLParameter = function (sParam) {
+                var sPageURL = window.location.search.substring(1);
+                var sURLVariables = sPageURL.split('&');
+                for (var i = 0; i < sURLVariables.length; i++) {
+                    var sParameterName = sURLVariables[i].split('=');
+                    if (sParameterName[0] == sParam) {
+                        return sParameterName[1];
+                    }
+                }
+            };
+            $("body").on('click', '#open_m-upload-design-wrap', function(e) {
+                $('.nbd-popup-wrap').addClass('is-hidden');
+                $('#nbd-m-upload-design-wrap').addClass('is-visible');
+            });
+            backtoOption = function(){
+                $('#nbd-m-upload-design-wrap').removeClass('is-visible');
+                $('#nbd-m-custom-design-wrap').removeClass('is-visible');
+                $('.nbd-popup-wrap').removeClass('is-hidden');
+            };
+            var showDesignFrame = function () {
+                jQuery('body, html').addClass('nbd-prevent-scroll');
+                if( !is_nbd_upload ) {
+                    if (!nbd_append_iframe) {
+                        var iframe_src = jQuery('#container-online-designer').attr('data-iframe');
+                        if( jQuery('input[name="variation_id"]').length ){
+                            iframe_src = addParameter(iframe_src, 'variation_id', jQuery('input[name="variation_id"]').val(), false);
+                        }
+                        jQuery('#nbd-m-custom-design-wrap').prepend('<iframe id="onlinedesigner-designer"  width="100%" height="100%" scrolling="no" frameborder="0" noresize="noresize" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" src="'+iframe_src+'"></iframe>');        
+                        nbd_append_iframe = true;
+                    }
+                    jQuery('#nbd-m-custom-design-wrap').addClass('is-visible');
+                }
+                jQuery('#container-online-designer').addClass('is-visible');
+            };
+
+            /* window.parent.NBDESIGNERPRODUCT.nbdesigner_unready(); */
+            $('.nbdesign-button').addClass('nbdesigner-disable');
+            $('.nbdesign-button').text("Loading Design");
+
+            $('.nbdesigner-img-loading').show();
+            var loadOnlineDesign = getURLParameter('load_online_design');
+            var createTemplate = getURLParameter('task');
+            (loadOnlineDesign || createTemplate == 'create_template') ? showDesignFrame() : '';
+
+            jQuery('#triggerDesign').on('click', function () {
+                if(jQuery(this).hasClass('nbdesigner_disable')){
+                    alert(nbds_frontend.check_invalid_fields);
+                } else{
+                    showDesignFrame();
+                    var frame = document.getElementById('onlinedesigner-designer');
+                    if( frame ){
+                        frame.contentWindow.postMessage('change_nbo_options', window.location.origin);
+                    }
+                }
+            });
+            jQuery('#closeFrameDesign').on('click', function () {
+                hideDesignFrame();
+            });
+
+            jQuery('#nbd__content__overlay').on('click', function (event) {
+               if(event.target.id == 'nbd__content__overlay'){
+                   hideDesignFrame();
+               }
+            });
+            jQuery('#open_m-custom-design-wrap').on('click', function (event) {
+                jQuery('.nbd-popup-wrap').addClass('is-hidden');
+                if( !nbd_append_iframe ){
+                    var iframe_src = jQuery('#container-online-designer').attr('data-iframe');
+                    if( jQuery('input[name="variation_id"]').length ){
+                        iframe_src = addParameter(iframe_src, 'variation_id', jQuery('input[name="variation_id"]').val(), false);
+                    }
+                    jQuery('#nbd-m-custom-design-wrap').prepend('<iframe id="onlinedesigner-designer"  width="100%" height="100%" scrolling="no" frameborder="0" noresize="noresize" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" src="'+iframe_src+'"></iframe>');        
+                    nbd_append_iframe = true;
+                }
+                jQuery('#nbd-m-custom-design-wrap').addClass('is-visible');
+            });
+
+            hideDesignFrame = function (mes) {
+                jQuery('body, html').removeClass('nbd-prevent-scroll');
+                jQuery('#container-online-designer').removeClass('is-visible');
+                backtoOption();
+                if (mes != null) {
+                    setTimeout(function () {
+                        alert(mes);
+                    }, 700);
+                }
+            };
+            $('#nbdesign-new-template').on('click', function () {
+                showDesignFrame();
+            });
+
+            setTimeout(function () {
+                $('.nbdesign-button').removeClass('nbdesigner-disable');
+                $('.nbdesign-button').text(jQuery("#dsgn-btn-name").text());
+                $('.nbdesigner-img-loading').hide();
+            }, 3000);
+        });
+
+
+        jQuery(window).on('resize', function () {
+            var width = jQuery(window).width(),
+                height = jQuery(window).height();
+        });
+
+
+        function addParameter(url, parameterName, parameterValue, atStart/*Add param before others*/) {
+            var replaceDuplicates = true;
+            var urlhash = '';
+            if (url.indexOf('#') > 0) {
+                var cl = url.indexOf('#');
+                urlhash = url.substring(url.indexOf('#'), url.length);
+            } else {
+                urlhash = '';
+                cl = url.length;
+            }
+            var sourceUrl = url.substring(0, cl);
+            var urlParts = sourceUrl.split("?");
+            var newQueryString = "";
+            if (urlParts.length > 1) {
+                var parameters = urlParts[1].split("&");
+                for (var i = 0; (i < parameters.length); i++) {
+                    var parameterParts = parameters[i].split("=");
+                    if (!(replaceDuplicates && parameterParts[0] == parameterName)) {
+                        if (newQueryString == "")
+                            newQueryString = "?";
+                        else
+                            newQueryString += "&";
+                        newQueryString += parameterParts[0] + "=" + (parameterParts[1] ? parameterParts[1] : '');
+                    }
+                }
+            }
+            if (newQueryString == "") newQueryString = "?";
+            if (atStart) {
+                newQueryString = '?' + parameterName + "=" + parameterValue + (newQueryString.length > 1 ? '&' + newQueryString.substring(1) : '');
+            } else {
+                if (newQueryString !== "" && newQueryString != '?')
+                    newQueryString += "&";
+                newQueryString += parameterName + "=" + (parameterValue ? parameterValue : '');
+            }
+            return urlParts[0] + newQueryString + urlhash;
+        };
+
+        var _nbd_stored_design = false, _nbd_prevent_ajax = false;
+        function nbd_form_submit(e, container){
+            var wrapper = ( typeof container != 'undefined' ) ? container + ' ' : '';
+            if( window.preventSubmitFormCart && !_nbd_stored_design ){
+                e.preventDefault();
+                console.log(jQuery(this).html());
+                jQuery(jQuery(this).parents('form')).addClass( 'processing' ).block( {
+                    message: null,
+                    overlayCSS: {
+                        background: '#fff',
+                        opacity: 0.6
+                    }
+                });
+                var scope = angular.element(document.getElementById("designer-controller")).scope();
+                scope.saveData();
+                return false;
+            }else if( !_nbd_prevent_ajax ){
+                e.preventDefault();
+                var formData =  new FormData();
+                cartForm = jQuery(wrapper + 'form.cart, ' + wrapper + 'form.variations_form'),
+                    cartFormData = cartForm.serializeArray();
+                jQuery.each(cartFormData, function (i, val) {
+                    if (val.name) {
+                        var new_name = val.name == 'add-to-cart' ? 'nbd-add-to-cart' : val.name;
+                        formData.append(new_name, val.value);
+                    }
+                });
+                if( angular.isUndefined(cartFormData['nbd-add-to-cart']) ){
+                    formData.append('nbd-add-to-cart', cartForm.find('[name="add-to-cart"]').val());
+                }
+                jQuery.each(cartForm.find("input[type='file']"), function (i, tag) {
+                    jQuery.each(jQuery(tag)[0].files, function (i, file) {
+                        formData.append(tag.name, file);
+                    });
+                });
+                nbo_ajax_cart( formData, function(){
+                    cartForm.addClass( 'processing' ).block( {
+                        message: null,
+                        overlayCSS: {
+                            background: '#fff',
+                            opacity: 0.6
+                        }
+                    });
+                }, function(){
+                    cartForm.removeClass( 'processing' ).unblock();
+                } );
+                return false;
+            }
+            return true;
+        };
+        function nbo_ajax_cart( form, beFunc, comFunc ){
+            jQuery.ajax({
+                url: NBDESIGNCONFIG.design_url_visual + '?action=nbo_ajax_cart',
+                type: 'POST',
+                dataType: 'json',
+                data: form,
+                contentType: false,
+                processData: false,
+                beforeSend: function () {
+                    if(typeof beFunc == 'function') beFunc();
+                },
+                complete: function () {
+                    if(typeof comFunc == 'function') comFunc();
+                },
+                success: function (response) {
+                    jQuery('.catalog-product-view #product_addtocart_form').on('submit', function(e){
+                        nbd_form_submit( e );
+                    });
+                    // if ('success' === response.result) {
+                    //     console.log(response);
+                    //     if( typeof response.redirect != 'undefined' ){
+                    //         window.location.href = response.redirect;
+                    //     }else{
+                    //         jQuery('#nbd-ajax-cart-alert-content').html(response.messages);
+                    //         if( response.result == 'success' ){
+                    //             jQuery('#nbd-ajax-cart-alert-title .failure').hide();
+                    //         }else{
+                    //             jQuery('#nbd-ajax-cart-alert-title .success').hide();
+                    //         }
+                    //         if( jQuery('#nbo-quick-view-popup').length ){
+                    //             jQuery('#nbo-quick-view-popup').find('.close-popup').triggerHandler('click');
+                    //         }
+                    //         jQuery('#nbd-ajax-cart-alert').showAlert();
+                    //         if( response.data.fragments ){
+                    //             var fragments = response.data.fragments;
+                    //             jQuery.each(fragments, function (key) {
+                    //                 jQuery(key).addClass('updating').fadeTo('400', '0.6').block({
+                    //                     message: null,
+                    //                     overlayCSS: {
+                    //                         opacity: 0.6
+                    //                     }
+                    //                 });
+                    //             });
+                    //             jQuery.each(fragments, function (key, value) {
+                    //                 jQuery(key).replaceWith(value);
+                    //                 jQuery(key).stop(true).css('opacity', '1').unblock();
+                    //             });
+                    //         }
+                    //     }
+                    // }
+                    if ('failure' === response.result) {
+                        alert( response.messages );
+                    }
+                }
+            });
+        };
+        jQuery('.catalog-product-view form#product_addtocart_form .single_add_to_cart_button').on('click', function(e){
+            nbd_form_submit( e );
+        });
+
+        jQuery('.catalog-product-view #product_addtocart_form').on('keydown', function( event ){
+            if( event.keyCode == 13 ) {
+                event.preventDefault();
+                return false;
+            }
+        });
+        jQuery(document).on('nbd_design_stored', function( e, data ){
+            _nbd_stored_design = true;
+            if( data._type != 'quote' ){
+                if( typeof data.prevent_ajax != 'undefined' ){
+                    _nbd_prevent_ajax = true;
+                }
+                jQuery('.catalog-product-view #product_addtocart_form').submit();
+            }
+        });
+    });
+</script>

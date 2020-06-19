@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="admin-2columns-left" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <css src="Netbaseteam_Onlinedesign/css/admin-nbdesigner.css"/>
+        <css src="Netbaseteam_Onlinedesign/css/nbd-general.css"/>
+        <css src="Netbaseteam_Onlinedesign/css/popup_image.css"/>
+        <css src="Netbaseteam_Onlinedesign/css/font-awesome/css/font-awesome.css"/>
+        <css src="Netbaseteam_Onlinedesign/css/detail_order.css"/>
+        <css src="Netbaseteam_Onlinedesign/css/detail_order_other.css"/>
+        <css src="Netbaseteam_Onlinedesign/css/owl.carousel.css"/>
+        <css src="Netbaseteam_Onlinedesign/css/pdf/sweetalert.css"/>
+    </head>
+    <update handle="editor"/>
+    <body>
+        <referenceContainer name="content">
+            <block class="Netbaseteam\Onlinedesign\Block\Adminhtml\Order\Edit" name="onlinedesign_edit" template="nbdesigner_detail_order.phtml" />
+        </referenceContainer>
+        
+    </body>
+</page>

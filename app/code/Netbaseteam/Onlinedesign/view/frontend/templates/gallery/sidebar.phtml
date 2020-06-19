@@ -1,0 +1,41 @@
+<?php
+$categories = $this->getStoreCategories(true,false,true);
+$categoryHelper = $this->getCategoryHelper();
+?>
+<h3><?php echo __('Design Category') ?></h3>
+<ul>
+    <?php
+    foreach($categories as $category):
+        if (!$category->getIsActive()) {
+            continue;
+        }
+        ?>
+
+        <li><a href="?cat=<?php echo $category->getEntityId() ?>"><?php echo $category->getName() ?></a></li>
+        <?php
+        if($childrenCategories = $this->getChildCategories($category)):
+            ?>
+            <ul>
+                <?php
+                foreach($childrenCategories as $childrenCategory):
+                    if (!$childrenCategory->getIsActive()) {
+                        continue;
+                    }
+                    ?>
+                    <li><a href="?cat=<?php echo $childrenCategory->getEntityId() ?>"><?php echo $childrenCategory->getName() ?></a></li>
+                <?php
+                endforeach;
+                ?>
+            </ul>
+        <?php
+        endif;
+    endforeach;
+    ?>
+</ul>
+<script>
+    var showAllProduct = function(e){
+        jQuery(e).hide();
+        jQuery('.nbd-tem-list-product-wrap').addClass('see-all');
+        jQuery('.nbd-tem-list-product-wrap ul li').removeClass('nbd-hide');
+    }
+</script>

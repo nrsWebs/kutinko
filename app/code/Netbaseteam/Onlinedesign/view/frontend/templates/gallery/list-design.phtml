@@ -1,0 +1,42 @@
+<div class="nbd-list-designs">
+    <?php if( isset( $_GET['tag'] ) || isset( $_GET['color'] ) ): ?>
+        <div class="nbd-gallery-filter">
+            <span class="nbd-gallery-filter-text"><?php echo __("You've Selected"); ?></span> <?php do_action( 'nbd_gallery_filter' ); ?> <a style="white-space: nowrap;" href="#" class="nbd-gallery-filter-clear"><?php echo __("Clear All"); ?></a>
+        </div>
+    <?php endif; ?>
+    <div class="nbdesigner-gallery nbd-gallery-wrap <?php echo 'nbd-gallery-column-3'?>" id="nbdesigner-gallery">
+        <?php
+        $pid = $block->getCurrentProduct() ? $block->getCurrentProduct()->getId() : 0;
+        if( $pid ):
+            $link_start_design = '';
+            ?>
+            <div class="nbdesigner-item">
+                <div class="nbd-gallery-item nbd-gallery-item-upload">
+                    <div class="nbd-gallery-item-upload-inner">
+                        <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80">
+                            <title>plus-circle</title>
+                            <path fill="#ddd" d="M40 3.333c-20.333 0-36.667 16.333-36.667 36.667s16.333 36.667 36.667 36.667 36.667-16.333 36.667-36.667-16.333-36.667-36.667-36.667zM40 70c-16.667 0-30-13.333-30-30s13.333-30 30-30c16.667 0 30 13.333 30 30s-13.333 30-30 30z"></path>
+                            <path fill="#ddd" d="M53.333 36.667h-10v-10c0-2-1.333-3.333-3.333-3.333s-3.333 1.333-3.333 3.333v10h-10c-2 0-3.333 1.333-3.333 3.333s1.333 3.333 3.333 3.333h10v10c0 2 1.333 3.333 3.333 3.333s3.333-1.333 3.333-3.333v-10h10c2 0 3.333-1.333 3.333-3.333s-1.333-3.333-3.333-3.333z"></path>
+                        </svg>
+                    </div>
+                    <div class="nbd-gallery-item-upload-inner">
+                        <a href="<?php echo $link_start_design; ?>" class="" target="_blank" title="<?php echo __('Start design'); ?>">
+                            <?php echo __('Design or'); ?><br />
+                            <?php echo __('Upload file'); ?>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        <?php endif; ?>
+        <?php include_once('gallery-item.phtml'); ?>
+    </div>
+    <div>
+        <div class="nbd-load-more" id="nbd-load-more"></div>
+        <!--            <div id="nbd-pagination-wrap" >-->
+        <!--                --><?php
+        //                $pagination = true;
+        //                if($pagination) include_once('pagination.phtml'); ?>
+        <!--            </div>    -->
+        <?php include_once('popup-wrap.phtml'); ?>
+    </div>
+</div>  <!-- End. list designs -->

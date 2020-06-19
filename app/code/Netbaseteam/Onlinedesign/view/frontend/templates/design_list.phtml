@@ -1,0 +1,66 @@
+<?php /** @var $block \Netbaseteam\Onlinedesign\Block\Designlist */ ?>
+<?php $_productCollection = $block->getOnlineDesignProducts(); ?>
+<?php if (count($_productCollection)): ?>
+    <section class="section-print section-online">
+        <div class="heading">
+            <h3><?php echo __('Online design'); ?></h3>
+
+            <p><?php echo __("Things We Know You'll Love"); ?></p>
+        </div>
+        <div class="section-content">
+            <?php foreach ($_productCollection as $product): ?>
+                <?php $productId = $product->getId(); ?>
+                <?php $imageDesign = $block->getImageDesign($productId)?>
+                <?php if($imageDesign) :?>
+                    <div class="section-online__inner">
+                        <div class="section-online__inner--img"><?php echo $imageDesign; ?>
+                            <div class="section-online__inner--mask">
+                                <h4><?php echo $product->getName(); ?></h4>
+                                <a class="button" href="<?php echo $product->getProductUrl(); ?>"><?php echo __('Start Design'); ?></a>
+                            </div>
+                        </div>
+                    </div>
+                <?php endif; ?>
+            <?php endforeach; ?>
+        </div>
+    </section>
+    <script type="text/javascript">
+        require(['jquery'], function ($) {
+            equalheight = function (container) {
+                var currentTallest = 0,
+                    currentRowStart = 0,
+                    rowDivs = new Array(),
+                    $el,
+                    topPosition = 0;
+                $(container).each(function () {
+
+                    $el = jQuery(this);
+                    jQuery($el).height('auto')
+                    topPostion = $el.position().top;
+
+                    if (currentRowStart != topPostion) {
+                        for (currentDiv = 0; currentDiv < rowDivs.length; currentDiv++) {
+                            rowDivs[currentDiv].height(currentTallest);
+                        }
+                        rowDivs.length = 0; // empty the array
+                        currentRowStart = topPostion;
+                        currentTallest = $el.height();
+                        rowDivs.push($el);
+                    } else {
+                        rowDivs.push($el);
+                        currentTallest = (currentTallest < $el.height()) ? ($el.height()) : (currentTallest);
+                    }
+                    for (currentDiv = 0; currentDiv < rowDivs.length; currentDiv++) {
+                        rowDivs[currentDiv].height(currentTallest);
+                    }
+                });
+            };
+            $(document).ready(function() {
+                equalheight('.section-content .section-online__inner ');
+            });
+            $(window).resize(function () {
+                equalheight('.section-content .section-online__inner');
+            });
+        });
+    </script>
+<?php endif; ?>
