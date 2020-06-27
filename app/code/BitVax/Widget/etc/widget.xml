@@ -1,0 +1,33 @@
+<?xml version="1.0" ?>
+<widgets xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Widget:etc/widget.xsd">
+	<widget class="BitVax\Widget\Block\Widget\CategoryBox" id="bitvax_widget_categorybox">
+		<label>Category Box</label>
+		<description>Create a custom category box</description>
+		<parameters>
+			<parameter name="custom_title" sort_order="10" visible="true" xsi:type="text">
+				<label>Category Custom Title</label>
+			</parameter>
+            <parameter name="category_image" xsi:type="block" visible="true" sort_order="20" required="true">
+                <label translate="true">Image</label>
+                <description translate="true">Category Image</description>
+                <block class="BitVax\Widget\Block\Widget\Category\ImageChooser">
+                    <data>
+                        <item name="button" xsi:type="array">
+                            <item name="open" xsi:type="string">Choose Image...</item>
+                        </item>
+                    </data>
+                </block>
+            </parameter>
+            <parameter name="category_id" xsi:type="block" visible="true" required="true" sort_order="30">
+                <label translate="true">Category</label>
+                <block class="Magento\Catalog\Block\Adminhtml\Category\Widget\Chooser">
+                    <data>
+                        <item name="button" xsi:type="array">
+                            <item name="open" xsi:type="string" translate="true">Select Category...</item>
+                        </item>
+                    </data>
+                </block>
+            </parameter>
+		</parameters>
+	</widget>
+</widgets>

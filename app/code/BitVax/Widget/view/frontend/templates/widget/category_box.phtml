@@ -1,0 +1,16 @@
+
+<div class="category-box border-blue">
+	<img class="image" src="<?= $block->getImage(); ?>" alt="<?= $block->escapeHtml($block->getData('category_id')) ?>"/>
+	
+	<div class="category-name">
+		<div class="semicircle-up"></div>
+		<div class="semicircle-down"></div>
+		<div class="name">
+			<?php if($block->getData('custom_title')) : ?>
+				<h2><?= $block->escapeHtml($block->getData('custom_title')) ?></h2>
+			<?php else: ?>
+				<h2><?= $block->escapeHtml($block->getCategorName()) ?></h2>
+			<?php endif; ?>
+		</div>
+	</div>
+</div>

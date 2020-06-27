@@ -237,6 +237,7 @@ return [
         'Amazon_Payment' => 1,
         'BitVax_SalesSequence' => 1,
         'BitVax_ScheduledImportExport' => 1,
+        'BitVax_Widget' => 1,
         'Dotdigitalgroup_Email' => 1,
         'Dotdigitalgroup_Chat' => 1,
         'EthanYehuda_CronjobManager' => 1,
