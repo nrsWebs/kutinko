@@ -168,7 +168,7 @@ class Integrate extends \Magento\Framework\App\Helper\AbstractHelper
     {
         $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
         $storeManager = $objectManager->get('\Magento\Store\Model\StoreManagerInterface');
-        $baseUrl = $storeManager->getStore()->getBaseUrl();
+        $baseUrl = $objectManager->get('Magento\Framework\App\Config\ScopeConfigInterface')->getValue("web/unsecure/base_url");
         $path_dir = explode('media', $path);
         return $baseUrl . 'pub/media/' . $path_dir[1];
     }

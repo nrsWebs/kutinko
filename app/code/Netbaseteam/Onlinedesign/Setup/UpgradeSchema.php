@@ -167,23 +167,6 @@ class UpgradeSchema implements UpgradeSchemaInterface {
 		}
 
 
-        if (version_compare($context->getVersion(), '4.5.0', '<')) {
-            $nbTemplate = $setup->getTable('nbdesigner_templates');
-            if ($setup->getConnection()->isTableExists($nbTemplate) == true) {
-                $setup->getConnection()->addColumn(
-                    $setup->getTable($nbTemplate),
-                    'image',
-                    [
-                        'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                        'unsigned' => true,
-                        'nullable' => true,
-                        'default' => false,
-                        'comment' => 'Image Template',
-                    ]
-                );
-            }
-        }
-
 		if (version_compare($context->getVersion(), '4.5.0', '<')) {
 			$nbCatArtTable = $setup->getTable('nb_catart');
 			if ($setup->getConnection()->isTableExists($nbCatArtTable) == true) {
@@ -399,6 +382,18 @@ class UpgradeSchema implements UpgradeSchemaInterface {
 	                ['unsigned' => true, 'nullable' => true],
 	                'Name'
 	            )->addColumn(
+                    'image',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    255,
+                    ['unsigned' => true, 'nullable' => true],
+                    'Images'
+                )->addColumn(
+                    'colors',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    255,
+                    ['unsigned' => true, 'nullable' => true],
+                    'Colors'
+                )->addColumn(
 	                'tags',
 	                \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
 	                255,

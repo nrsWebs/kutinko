@@ -23,7 +23,11 @@ define([
         },
         showButtonEditDesign: function(quoteItem) {
             var item = this.getItem(quoteItem.item_id);
-            return item.buttonEditDesign;
+            if(item.onlineDesign) {
+                return item.buttonEditDesign;
+            }
+            return '';
+
         },
         showUploadDesignFile: function(quoteItem) {
             var item = this.getItem(quoteItem.item_id);

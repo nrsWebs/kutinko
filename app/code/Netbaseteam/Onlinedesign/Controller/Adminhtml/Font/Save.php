@@ -192,6 +192,7 @@ class Save extends \Magento\Backend\App\Action {
 
                 $font['file'] = array("r" => '/'.$year . "/" . $month . "/" . $day . "/" . $file['name']);
                 $font['url'] = '/'.$year . "/" . $month . "/" .  $day . "/" .$file['name'];
+                $font["subset"] = "all";
 
             } else {
                 $font_index_found = $helper->indexFound($font_id, $list, "id");
@@ -199,6 +200,7 @@ class Save extends \Magento\Backend\App\Action {
                     $font_data = $list[$font_index_found];
                     $font['file'] = $font_data["file"];
                     $font['url'] = $font_data["url"];
+                    $font["subset"] = "all";
                 }
             }
 

@@ -3453,6 +3453,7 @@ class Nbdesigner_Plugin
                 $result['sfolder'] = $nbd_item_key.'s';
             }
             if($generate_mockup){
+                $option = '';
                 $result['mockups'] = $this->create_mockup_preview($path, $option, $product_config);
             }
             $result['image'] = array();
@@ -3463,8 +3464,9 @@ class Nbdesigner_Plugin
                 ksort($result['image']);
             }
             $result['flag'] = 'success';   
-            $result['folder'] = $nbd_item_key;   
-
+            $result['folder'] = $nbd_item_key;
+            $result['name'] = isset($_POST['template_name']) ? $_POST['template_name'] : "";
+            $result['colors'] = isset($_POST['template_colors']) ? $_POST['template_colors'] : "";
             if( $task == 'new' ){
                 if( $task2 == 'update' ){
                     // $session->set($cart_item_key. '_nbd', $nbd_item_key);
@@ -3479,15 +3481,17 @@ class Nbdesigner_Plugin
                 }
             }
 
-            if( $task == 'create' ){
-                if( $design_type == 'art' ){
-                    My_Design_Endpoint::nbdesigner_insert_table_my_design($product_id, $variation_id, $nbd_item_key );
-                }else{
+            if ($task == 'create') {
+                if ($design_type == 'art') {
+                    My_Design_Endpoint::nbdesigner_insert_table_my_design($product_id, $variation_id, $nbd_item_key);
+                } else {
+                    $image = implode(' ', $result['image']);
+                    $colors = $result['colors'];
                     // if(!can_edit_nbd_template()){
                     //     $result['mes'] = __('You have not permission to create or edit template', 'web-to-print-online-designer'); echo json_encode($result); wp_die();
                     // }else{
-                        $this->nbdesigner_insert_table_templates($product_id, $variation_id, $nbd_item_key, 0, 1, 0);
-                        $result['close_window'] = 1;
+                    $this->nbdesigner_insert_table_templates($product_id, $variation_id, $nbd_item_key, $image, $result['name'], $colors, 0, 1, 0);
+                    $result['close_window'] = 1;
                     // }
                 }
             }
@@ -3496,9 +3500,10 @@ class Nbdesigner_Plugin
             //         $result['added'] = 1;
             //     }
             // }
-            if( $task == 'edit' && isset($_POST['order_id']) && $design_type == 'edit_order' ){
-                $order_id = absint($_POST['order_id']);
-                update_post_meta($order_id, '_nbdesigner_order_changed', 1);
+            if($task == 'edit') {
+                // var_dump($result); die;
+                $this->update_template($result);
+                $result['close_window'] = 1;
             }
             // if( $task == 'edit' && (isset($_POST['cart_item_key']) && $_POST['cart_item_key'] != '')  ){
             //     if( isset($_POST['qty']) && absint($_POST['qty']) > 0 ){
@@ -3516,6 +3521,58 @@ class Nbdesigner_Plugin
                 
         die();   
     }
+    public function update_template( $result ){
+        $task            = (isset($_POST['task']) && $_POST['task'] != '') ? $_POST['task'] : 'new';
+        $design_type     = (isset($_POST['design_type']) && $_POST['design_type'] != '') ? $_POST['design_type'] : '';
+        $info            = array();
+        if( $task == 'create' || ( $task == 'edit' && $design_type == 'template' ) ){
+            $info['name']        = (isset($_POST['template_name']) && $_POST['template_name'] != '') ? $_POST['template_name'] : '';
+            $type                = (isset($_POST['template_type']) && $_POST['template_type'] != '') ? $_POST['template_type'] : '';
+            $info['tags']        = (isset($_POST['template_tags']) && $_POST['template_tags'] != '') ? $_POST['template_tags'] : '';
+            $info['colors']        = (isset($_POST['template_colors']) && $_POST['template_colors'] != '') ? $_POST['template_colors'] : '';
+//            if( $type == '2' && isset( $_FILES['template_thumb'] ) ){
+//                $thumb   = $_FILES['template_thumb'];
+//                if( $thumb['error'] == 0 ){
+//                    $attachment_id = $this->upload_template_thumb( $thumb );
+//                    if( $attachment_id ){
+//                        $info['thumbnail']  = $attachment_id;
+//                    }
+//                }
+//            }
+            $templates = $this->get_template_by_folder( $result['folder'] );
+            if( is_array($templates) && isset( $templates[0] ) ){
+                $tid = $templates[0]['id'];
+                $this->update_template_info( $tid, $info );
+            }
+        }
+    }
+
+    private function get_template_by_folder( $folder ){
+        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+        $resources = $objectManager->get('Magento\Framework\App\ResourceConnection');
+        $connection = $resources->getConnection();
+        $table_name = $resources->getTableName('nbdesigner_templates');
+        $sql         = "SELECT * FROM " . $table_name;
+        if ( !empty($folder) ) {
+            $sql    .= " WHERE folder = '" .  $folder . "'";
+        }
+        $result      = $connection->fetchAll($sql, 'ARRAY_A');
+        return $result;
+    }
+
+    private function update_template_info( $tid, $info ){
+        $name = $info['name'];
+        $tags = $info['tags'];
+        $colors = $info['colors'];
+        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+        $resources = $objectManager->get('Magento\Framework\App\ResourceConnection');
+        $connection = $resources->getConnection();
+        $table_name = $resources->getTableName('nbdesigner_templates');
+        $sqlUpdate = "Update " . $table_name . " SET name='".$name . "', tags='" .$tags . "', colors='" .$colors  ."' Where id=" . $tid;
+        $connection->query($sqlUpdate);
+        return true;
+    }
+
     public function nbd_remove_design_and_file(){
         $product_id = absint($_POST['product_id']);
         $variation_id = (isset($_POST['variation_id']) && $_POST['variation_id'] != '') ? absint($_POST['variation_id']) : 0; 
@@ -3650,33 +3707,16 @@ class Nbdesigner_Plugin
      * @param int $publish
      * @param int $private
      */
-    private function nbdesigner_insert_table_templates($product_id, $variation_id, $folder, $priority, $publish = 1, $private = 0){
-        // global $wpdb;
-        // $created_date = new DateTime();
-        // $user_id = 1;
-        // $table_name =  $wpdb->prefix . 'nbdesigner_templates';
-        // $wpdb->insert($table_name, array(
-        //     'product_id' => $product_id,
-        //     'variation_id' => $variation_id,
-        //     'folder' => $folder,
-        //     'user_id' => $user_id,
-        //     'created_date' => $created_date->format('Y-m-d H:i:s'),
-        //     'publish' => $publish,
-        //     'private' => $private,
-        //     'priority' => $priority
-        // ));
-        // return true;
-
+    private function nbdesigner_insert_table_templates($product_id, $variation_id, $folder, $image, $name, $colors, $priority, $publish = 1, $private = 0)
+    {
         $created_date = new DateTime();
         $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
         $customerSession = $objectManager->create('Magento\Customer\Model\Session');
         $resources = $objectManager->get('Magento\Framework\App\ResourceConnection');
-        $connection= $resources->getConnection();
-
+        $connection = $resources->getConnection();
         $user_id = $customerSession->getCustomerId();
-        $table_name =  $resources->getTableName('nbdesigner_templates');
-        $sql = "INSERT INTO " . $table_name . "(product_id, variation_id, folder, user_id, publish, private, priority, created_date) VALUES ('".$product_id."', '".$variation_id."', '".$folder."', '".$user_id."', '".$publish."', '".$private."', '".$priority."', '".$created_date->format('Y-m-d H:i:s')."')";
-
+        $table_name = $resources->getTableName('nbdesigner_templates');
+        $sql = "INSERT INTO " . $table_name . "(product_id, variation_id, folder, image, name, colors, user_id, publish, private, priority, created_date) VALUES ('" . $product_id . "', '" . $variation_id . "', '" . $folder . "', '" . $image . "', '" . $name . "',  '" . $colors . "',  '" . $user_id . "', '" . $publish . "', '" . $private . "', '" . $priority . "', '" . $created_date->format('Y-m-d H:i:s') . "')";
         $connection->query($sql);
         return true;
     }

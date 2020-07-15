@@ -1000,6 +1000,21 @@ function nbd_get_image_thumbnail( $id ){
     return $image_url;
 }
 
+function get_template_by_folder( $folder ){
+    $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+    $customerSession = $objectManager->create('Magento\Customer\Model\Session');
+    $resources = $objectManager->get('Magento\Framework\App\ResourceConnection');
+    $connection = $resources->getConnection();
+    $table_name = $resources->getTableName('nbdesigner_templates');
+    $sql         = "SELECT * FROM ". $table_name;
+    if ( !empty($folder) ) {
+        $sql    .= " WHERE folder = '" .  $folder . "'";
+    }
+    $result      = $connection->fetchAll($sql, 'ARRAY_A');
+    return $result;
+}
+
+
 function nbd_get_product_info( $product_id, $variation_id, $nbd_item_key = '', $task, $task2 = '', $reference = '', $need_templates = false, $cart_item_key = '' )
 {
     $path = '';
@@ -1018,17 +1033,9 @@ function nbd_get_product_info( $product_id, $variation_id, $nbd_item_key = '', $
         "maxsize" => 8,
         "mindpi" => 0
     );
-            
-    /* Path not exist in case add to cart before design, session has been init */  
+
+    /* Path not exist in case add to cart before design, session has been init */
     if( $nbd_item_key == '' || !file_exists($path) ){
-        // $data['upload'] = array(
-        //     "allow_type" => "",
-        //     "disallow_type" => "",
-        //     "number" => 1,
-        //     "minsize" => 0,
-        //     "maxsize" => 8,
-        //     "mindpi" => 0
-        // );
         $data['option'] = unserialize(get_post_meta($product_id, '_nbdesigner_option', true));
         $data['option']['layout'] = 'm';
         $data['option']['dpi'] = isset($data['option']['_nbdesigner_dpi']) ? $data['option']['_nbdesigner_dpi'] : 150;
@@ -1036,14 +1043,14 @@ function nbd_get_product_info( $product_id, $variation_id, $nbd_item_key = '', $
         $data['option']['type_price'] = 1;
         $data['option']['request_quote'] = 0;
         if (!isset($data['option']['admindesign'])) $data['option']['admindesign'] = 0;
-        if($variation_id > 0){         
+        if($variation_id > 0){
             $enable_variation = get_post_meta($variation_id, '_nbdesigner_variation_enable', true);
-            $data['product'] = unserialize(get_post_meta($variation_id, '_designer_variation_setting', true)); 
+            $data['product'] = unserialize(get_post_meta($variation_id, '_designer_variation_setting', true));
             if ( !($enable_variation && isset($data['product'][0]))){
-                $data['product'] = unserialize(get_post_meta($product_id, '_designer_setting', true)); 
-            }    
+                $data['product'] = unserialize(get_post_meta($product_id, '_designer_setting', true));
+            }
         }else {
-            $data['product'] = unserialize(get_post_meta($product_id, '_designer_setting', true)); 
+            $data['product'] = unserialize(get_post_meta($product_id, '_designer_setting', true));
         }
     }else {
         $data['product'] = unserialize(file_get_contents($path . '/product.json'));
@@ -1066,7 +1073,7 @@ function nbd_get_product_info( $product_id, $variation_id, $nbd_item_key = '', $
     }
     $disable_auto_load_template = nbdesigner_get_option('nbdesigner_disable_auto_load_template');
 
-    if( isset($data['option']['admindesign']) && $task == 'new' && $disable_auto_load_template != 'yes' ) {
+    if( $data['option']['admindesign'] && $task == 'new' && $disable_auto_load_template != 'yes' ) {
         /* Get primary template or latest template for new design */
         $template = nbd_get_templates( $product_id, $variation_id, '', 1 );
         if( isset($template[0]) ){
@@ -1076,7 +1083,7 @@ function nbd_get_product_info( $product_id, $variation_id, $nbd_item_key = '', $
             if($lazy_load_default_template == 'yes'){
                 $data['lazy_load_design_folder'] = $template[0]['folder'];
             }else{
-                $data['design'] = nbd_get_data_from_json($template_path . '/design.json'); 
+                $data['design'] = nbd_get_data_from_json($template_path . '/design.json');
             }
         }
         $data['is_template'] = 1;
@@ -1099,7 +1106,26 @@ function nbd_get_product_info( $product_id, $variation_id, $nbd_item_key = '', $
     // if( $data['upload']['disallow_type'] == '' ) $data['upload']['disallow_type'] = nbdesigner_get_option('nbdesigner_disallow_upload_file_type');
     // $data['upload']['allow_type'] = preg_replace('/\s+/', '', strtolower( $data['upload']['allow_type']) );
     // $data['upload']['disallow_type'] = preg_replace('/\s+/', '', strtolower( $data['upload']['disallow_type']) );
-    
+    if( $need_templates ){
+        $templates = nbd_get_resource_templates( $product_id, $variation_id );
+        if( count($templates) ){
+            $data['templates'] = $templates;
+        }
+    }
+    $task            = (isset($_REQUEST['task']) && $_REQUEST['task'] != '') ? $_REQUEST['task'] : 'new';
+    $design_type     = (isset($_REQUEST['design_type']) && $_REQUEST['design_type'] != '') ? $_REQUEST['design_type'] : '';
+    if( $task == 'edit' && $design_type == 'template' ){
+        $folder         = $_GET['nbd_item_key'];
+        $templates      = get_template_by_folder( $folder );
+        if( is_array($templates) && isset( $templates[0] ) ){
+            $template               = $templates[0];
+            $data['template']       = array(
+                'tags'     => is_null( $template['tags'] ) ? '' : $template['tags'],
+                'colors'     => is_null( $template['colors'] ) ? '' : $template['colors'],
+                'name'     => $template['name']
+            );
+        }
+    }
     return $data;
 }
 

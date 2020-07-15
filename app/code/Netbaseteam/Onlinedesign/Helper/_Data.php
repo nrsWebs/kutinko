@@ -1332,14 +1332,17 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         if (!$this->scopeConfig->getValue('onlinedesign/general/btn_name', \Magento\Store\Model\ScopeInterface::SCOPE_STORE)) {
             return false;
         }
+
         $product = $this->_objectManager->create('Magento\Catalog\Model\Product')->load($productId);
+
         if($product->getTypeId() == 'configurable') return true;
+
         $customOptions = $this->_objectManager->get('Magento\Catalog\Model\Product\Option')->getProductOptionCollection($product);
         if(count($customOptions)) return true;
-        if ($this->_moduleManager->isEnabled('Netbaseteam_PricingOption')) {
+
         $option_id = $this->_objectManager->create('\Netbaseteam\PricingOption\Model\Option')->getProductOption($productId);
+
         if($option_id) return true;
-        }
         return false;
     }
 }

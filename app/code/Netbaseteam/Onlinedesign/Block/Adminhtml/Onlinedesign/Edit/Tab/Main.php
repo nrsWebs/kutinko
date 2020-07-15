@@ -234,14 +234,14 @@ class Main extends \Magento\Backend\Block\Widget\Form\Generic implements \Magent
     protected function getImageHtml($field, $productId, $storeId)
     {
         $onlineImg = $this->_resourceModel->getDesignImage($productId, $storeId);
-        $imageUrl = $this->_storeManager->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA).$onlineImg[0]['design_image'];
-        if($onlineImg[0]['design_image'] == 1) {
-            $imageUrl = $this->_helper->getImageDefaultProcess();
-        }
+//        $imageUrl = $this->_storeManager->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA).$onlineImg[0]['design_image'];
+//        if($onlineImg[0]['design_image'] == 1) {
+//            $imageUrl = $this->_helper->getImageDefaultProcess();
+//        }
         $html = '';
         if (!empty($onlineImg[0]) && isset($onlineImg[0]['design_image'])) {
             $html .= '<p style="margin-top: 5px">';
-            $html .= '<image style="min-width:300px;max-width:100%;" src="' . $imageUrl . '" />';
+            $html .= '<image style="min-width:300px;max-width:100%;" src="' . $this->_storeManager->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA).$onlineImg[0]['design_image'] . '" />';
             $html .= '<input type="hidden" value="' . $onlineImg[0]['design_image'] . '" name="old_' . $field . '"/>';
             $html .= '</p>';
         }
